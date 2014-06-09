@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    
+      <title>Plotting in Python with matplotlib</title>
+    
+    <link rel="shortcut icon" type="image/x-icon" href="../../favicon.ico" />
+<link href="../../css/bootstrap/bootstrap.css" rel="stylesheet" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<link href="../../css/bootstrap/bootstrap-responsive.css" rel="stylesheet" />
+<link rel="stylesheet" type="text/css" href="../../css/swc.css" />
+<link rel="stylesheet" type="text/css" href="../../css/swc-bootstrap.css" />
+<link rel="alternate" type="application/rss+xml" title="The Software Carpentry Blog" href="/feed.xml"/>
+<meta charset="UTF-8" />
+<meta http-equiv="last-modified" content="" />
+<!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+<!--[if lt IE 9]>
+  <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+<![endif]-->
+
+    <link rel="stylesheet" type="text/css" href="../../css/lesson.css" />
+  </head>
+  <body>
+    <div class="container">
+      <div class="banner">
+  <a href="http://software-carpentry.org" title="Software Carpentry">
+    <img alt="Software Carpentry banner" src="../../img/software-carpentry-banner.png" />
+  </a>
+</div>
+
+
+      <div class="row-fluid">
+        <div class="span10 offset1">
+	  <!-- start content -->
+          
+          <h1>Plotting in Python with matplotlib</h1>
+          
+          <p><strong>Based on Lecture Material by Anthony Scopatz and Katy Huff</strong></p>
+
+<h1 id="plotting-in-python">Plotting in Python</h1>
+
+<p>Do this while I talk. If this is your first use of matplotlib (ever on
+this machine), it will take a little longer starting up.</p>
+
+<p><code>python
+from matplotlib import pyplot 
+</code></p>
+
+<p>The ability to visually represent data is one of the more important
+tools to the scientific user of python. The most popular and arguably
+most mature library for producing publication quality 2D plots
+matplotlib (MatPlotLib). In the developers own words, MatPlotLib is</p>
+
+<blockquote>
+  <p>a python 2D plotting library which produces publication quality
+figures in a variety of hardcopy formats and interactive environments
+across platforms. matplotlib can be used in python scripts, the python
+and ipython shell (ala MatLab or mathematica), web application
+servers, and six graphical user interface toolkits.&quot;</p>
+</blockquote>
+
+<h2 id="pyplot-pylab-and-matplotlib-numpy-matlab-and-more">pyplot, pylab and matplotlib. numpy, MatLab and more&#8230;</h2>
+
+<p>The underlying structure of MatPlotLib is very general and customizable.
+Thankfully, you don&#39;t actually need to interact with all that power. The
+way to generate plots and modify them is through the pyplot interface.
+The pyplot interface is much much inspired by Matlab&#39;s plotting
+commands, so it should if you&#39;re familiar with that it should be easy to
+pick up.</p>
+
+<ul>
+  <li>matplotlib - raw access to the plotting library. useful for
+extending matplotlib or doing very custom things</li>
+  <li>pyplot - MatLab-like interface to matplotlib (use this one!)</li>
+  <li>pylab - pyplot + numpy</li>
+</ul>
+
+<p><strong>Aside: Multiple Interfaces to MatPlotLib</strong></p>
+
+<p>In addition to the object oriented pyplot interface, pyplot implements a
+clone of Matlab&#39;s plotting interface. The main difference is that the
+Matlab interface has the paradigm of the &quot;current figure.&quot; So plotting
+and labeling commands implicitly refer to the current figure/subplot.
+This is fine so long as your plotting commands are simple and
+sequential. However, when your program requires that you modify a figure
+in multiple contexts the Matlab interface becomes very difficult to keep
+up with.</p>
+
+<p>In this session, we will use the object oriented interface exclusively.
+It is trivial to degrade to the Matlab interface if you&#39;re feeling lazy,
+but the object oriented interface is powerful. It is also more explicit.</p>
+
+<p><code>python
+import matplotlib.pyplot as plt 
+</code></p>
+
+<p>First things first. Let&#39;s plot something. Open up a file, copy, paste,
+execute.</p>
+
+<p><code>python
+  from matplotlib import pyplot as plt
+  x = range(0,10)
+  y = [val**2 for val in x]
+  ax = plt.subplot(111)
+  ax.plot(x,y)
+  plt.show()
+</code></p>
+
+<h2 id="figures-subplots-and-axes">figures, subplots, and axes</h2>
+
+<p>MatPlotLib plots are organized into figures, subplots and axes.</p>
+
+<p><img src="../../lessons/thw-scipy/images/fig1.jpg" alt="" /></p>
+
+<ul>
+  <li>figure = the whole window (Figure 1 above)</li>
+  <li>subplot = the regular grid of four plots (One, Two, Three, and Four
+above) within the window</li>
+  <li>axes = a handle to the place in the subplot to put your curves
+(there are four axes defining the locations of the 6 curves above.)</li>
+</ul>
+
+<h3 id="hands-on-exercise--making-a-plot">Hands On Exercise : Making a Plot</h3>
+
+<p>Lets make a plot. Retyping everything is not fun. Open up your favorite
+text editor to create a file &quot;plot.py&quot; to hold your plotting script.</p>
+
+<ol>
+  <li>
+    <p>from matplotlib import pyplot as plt</p>
+  </li>
+  <li>
+    <p>Make a figure: <strong>fig = plt.figure()</strong></p>
+  </li>
+  <li>
+    <p>Add a subplot to the figure: <strong>ax = fig.add_subplot(111)</strong></p>
+  </li>
+  <li>
+    <p>Plot on the subplot axes: <strong>ax.plot(range(10))</strong></p>
+  </li>
+  <li>
+    <p>Show the figure: <strong>plt.show()</strong></p>
+
+    <p>Your file should look like :</p>
+
+    <p><code>python
+  from matplotlib import pyplot as plt
+  fig = plt.figure()
+  ax = fig.add_subplot(111)
+  ax.plot([1,2,3,4,5,6])
+</code></p>
+  </li>
+  <li>
+    <p>Run your python file from the terminal <strong>python plot.py &amp;</strong></p>
+  </li>
+</ol>
+
+<h2 id="customizing-your-figure">Customizing your Figure</h2>
+
+<p>Other, sometimes more convenient ways to get axes.</p>
+
+<p>```python</p>
+
+<p># Useful for figures composed of multiple subplots
+  fig = plt.figure()
+  ax1 = fig.add_subplot(221)
+  ax2 = fig.add_subplot(222)
+  ax3 = fig.add_subplot(223)
+  ax4 = fig.add_subplot(224)</p>
+
+<p># Useful for figures with one subplot (ie the subplot is the figure)
+  ax2 = subplot(111)</p>
+
+<p># Useful for overlaying axes, sharing the x axis
+  ax3 = plt.twinx(ax2)
+```</p>
+
+<h3 id="customizing-your-plot">Customizing your Plot</h3>
+
+<p>Plot is pretty powerful, lets peruse the <a href="http://matplotlib.sourceforge.net">MatPlotLib
+documentation</a>.</p>
+
+<ol>
+  <li>By editing plot.py and referencing the documentation try to add a
+label to an axis or change the color.</li>
+  <li>If you&#39;re feeling adventurous and you&#39;ve successfully added a label,
+try ax.legend()</li>
+</ol>
+
+<p>Hints:</p>
+
+<ul>
+  <li>legend</li>
+  <li>colors</li>
+  <li>linestyles</li>
+  <li>kwargs !</li>
+</ul>
+
+<h1 id="other-types-of-line-plots">Other Types of Line Plots</h1>
+
+<p>MatPlotLib as all the usual types of plots</p>
+
+<h2 id="log-linear-linear-log-log-log">log-linear, linear-log, log-log</h2>
+
+<p>```python</p>
+
+<p>ax.semilogx(x,y)
+  ax.semilogy(x,y)
+  ax.loglog(x,y)
+```</p>
+
+<p>Execute ax.semilogx(range(1,11),range(10)) within your script instead of
+ax.plot(x) and run it again to see the effect.</p>
+
+<h2 id="contour-plots-and-pcolor">Contour plots and pcolor</h2>
+
+<p>Notice that for the z argument to pcolor is shorter by one in both
+directions. You should think of z as being defined zone centered. If you
+forget to do so, it will drop the last row and column.</p>
+
+<p>```python</p>
+
+<p>from matplotlib import pyplot as plt
+  import numpy as np</p>
+
+<p>r = np.linspace(0.1,2,200)
+  t = np.linspace(np.pi/4,7<em>np.pi/4,200)
+  r,t = np.meshgrid(r,t)
+  x = r</em>np.cos(t)
+  y = r*np.sin(t)
+  z = (x+0.6)<strong>2 + (y-1.)</strong>2</p>
+
+<p>ax = plt.subplot(111)</p>
+
+<p>ax.pcolor(x,y,z[1:,1:])
+  # ax.colorbar()</p>
+
+<p>con = ax.contour(x,y,z)
+  ax.clabel(con)</p>
+
+<p>plt.show()
+```</p>
+
+<h1 id="random-useful-things">Random useful things</h1>
+
+<h2 id="spy">Spy</h2>
+
+<p>Matlab converts may have used this function to look at the structure of sparse
+<a href="http://www.merriam-webster.com/medical/matrixes">matrixes</a>.</p>
+
+<p>```python</p>
+
+<p>n = 20
+  f = diag(ones(n)) + diag(ones(n-1),1) + diag(ones(n-3),-3)
+  spy(f)
+```</p>
+
+<h2 id="masked-arrays">Masked Arrays</h2>
+
+<p>Masked arrays are numpy ndarrays that have a mask to hide elements of
+the ndarray. They are really handy to use when plotting and you just
+want to make particular parts of the plot &quot;go away.&quot; In theory you could
+modify the underlying arrays to do the right thing, but that&#39;s a lot of
+work. You shouldn&#39;t have to do it if you don&#39;t have to. Masked arrays are
+the answer. For more detailed information, check out the <a href="http://docs.scipy.org/doc/numpy/reference/maskedarray.html">masked arrray
+documentation</a>
+] and <a href="http://docs.scipy.org/doc/numpy/reference/maskedarray.generic.html#constructing-masked-arrays">constructing masked
+arrays</a>.</p>
+
+<p>Starting from the pcolor plot, add the following code after defining z and
+before plotting things.</p>
+
+<p><code>python
+  z = np.ma.masked_where( np.abs(y-x) &lt; 0.2, z )
+</code></p>
+
+<h2 id="draw-vs-show">draw() vs show()</h2>
+
+<p>If you&#39;re changing plots after they render (ie show()) you have to tell
+MatPlotLib to draw the plot. draw() forces a figure to redraw. If you&#39;re
+doing all your plotting from scripts, you probably won&#39;t have to deal
+with draw(). If you&#39;re programming figures such that they change over
+the course of your program, you will need to use draw to refresh the
+figure.</p>
+
+<h1 id="how-do-i-make-a-plot-like--">How do I make a plot like &#8230; ?</h1>
+
+<p>MatPlotLib has an extensive
+<a href="http://matplotlib.sourceforge.net/gallery.html">gallery</a> of plots with
+source code. Take a look through those; they probably have something
+similar to what you want to do. If you click on one of these images, you&#39;ll
+land on a page with the source that created it. Recently, I&#39;ve noticed that
+the server has been throttling my traffic. If you see one you like but get
+a &quot;Too many requests warning&quot; go to the matplotlib github repository
+(https://github.com/matplotlib/matplotlib/tree/master/examples/pylab_examples)
+and look for the source code there.</p>
+
+<p>My favorite, among these, is
+<a href="https://github.com/matplotlib/matplotlib/tree/master/examples/pylab_examples/polar_bar.py">polar_bar.py</a>.</p>
+
+<h1 id="choose-your-own-adventure">Choose your own adventure</h1>
+
+<ul>
+  <li>keyboard/mouse bindings (interactive plots!)</li>
+  <li><a href="http://matplotlib.sourceforge.net/users/image_tutorial.html">image
+plotting</a></li>
+  <li>Shared Axes Across Subplots</li>
+</ul>
+
+<h1 id="event-binding-with-matplotlib">Event binding with MatPlotLib</h1>
+
+<p>MatPlotLib has a built in mechanism for handling keyboard/mouse events
+in a platform independent way. This can be useful when you want to
+toggle different data on and off in the same figure, or step through
+time dependent data, or something else crazy that you dream up. All you
+need a a function that draws the figure and some logic to identify
+events that your care about. MatPlotLib handles the rest. Lets walk
+through the following code.</p>
+
+<ul>
+  <li>A MovingPlot instance remembers which plot and axes to modify (no
+current figure nonsense!)</li>
+  <li>In the constructor, we draw() the initial frame</li>
+  <li>The attribute cid listens for &quot;key press events&quot; and calls
+self.update(event) when something happens</li>
+  <li>event is a &#39;key_press_event&#39; object, with attributes like &quot;key&quot;</li>
+  <li>update() takes one argument: an event object (other than the
+unavoidable self)</li>
+  <li>Based on the event object passed, update() only does something on
+right and left arrow key presses</li>
+  <li>MatPlotLib has several other <a href="http://matplotlib.sourceforge.net/api/backend_bases_api.html?highlight=canvas#matplotlib.backend_bases.FigureCanvasBase.mpl_connect">supported events</a></li>
+</ul>
+
+<p>```python</p>
+
+<p>from matplotlib import pyplot as plt
+  import numpy as np</p>
+
+<p>class MovingPlot(object):
+  &quot;&quot;&quot; MovingPlot plots a figure that flows across the screen.  Right and left 
+  arrows move the figure one step&quot;&quot;&quot;
+      def <strong>init</strong>(self, r0= [-0.8, 1.0], v0 = [0.1, 0.]):
+          # set up grid
+          r = np.linspace(0.2,2,20)
+          t = np.linspace(np.pi/4, 7<em>np.pi/4, 20)
+          r,t = np.meshgrid(r,t)
+          self.x = r</em>np.cos(t)
+          self.y = r*np.sin(t)</p>
+
+<pre><code>      self.x0 = r0[0]
+      self.y0 = r0[1]
+      self.vx = v0[0]
+      self.vy = v0[1]
+  
+      # create figure and axes for reuse
+      self.fig = plt.figure()
+      self.ax = self.fig.add_subplot(111)
+  
+      # draw the initial frame
+      self.frame = 0
+      self.draw(self.frame)
+  
+      # call self.update everytime a 'key_press_event' happens
+      # bind this behavior to an object so it persists
+      self.cid = self.fig.canvas.mpl_connect('key_press_event', self.update)
+      plt.show()
+  
+  def update(self, event):
+      """Changes the frame number based on event and draws a new frame if the 
+      frame changed"""
+      if event.key ==  'right':
+          print 'forward'
+          self.frame += 1
+      elif event.key == 'left':
+          print 'backward'
+          self.frame -= 1
+      else:
+          return
+      self.draw(self.frame)
+  
+  def draw(self, t):
+      """Draws the frame occuring at time=t"""
+      x = self.x - self.vx*t
+      y = self.y - self.vy*t
+      z = (x-self.x0)**2 + (y-self.y0)**2
+      self.ax.pcolor(self.x, self.y, z)
+      self.fig.canvas.draw()
+</code></pre>
+
+<p>if <strong>name</strong> == &quot;<strong>main</strong>&quot;:
+      mplot = MovingPlot()
+```</p>
+
+<h1 id="image-manipulation">Image Manipulation</h1>
+
+<p>MatPlotLib has the ability to plot images. Check out the following code.
+It plots 4 subplots</p>
+
+<ul>
+  <li>an image of a bunny</li>
+  <li>an image of a bunny with stuff over plotted</li>
+  <li>an image of a generated array</li>
+  <li>a pcolor plot of the same data</li>
+</ul>
+
+<p>```python</p>
+
+<p>from matplotlib import pyplot as plt
+  import numpy as np
+  import urllib</p>
+
+<p># read png into img
+  try:
+      img = plt.imread(&#39;bunny.png&#39;)
+  except RuntimeError:
+      print &quot;can&#39;t find bunny.png, trying to download&quot;
+      # the image probably doesn&#39;t exits
+      url = 
+      &#39;http://github.com/thehackerwithin/PyTrieste.wiki/images/bunny.png&#39;
+      urllib.urlretrieve(url, filename=&#39;bunny.png&#39;)
+      img = plt.imread(&#39;bunny.png&#39;)</p>
+
+<p>fig = plt.figure()</p>
+
+<p># plot just the bunny
+  ax = fig.add_subplot(221)
+  ax.imshow(img)
+  ax.set_title(&#39;just the bunny&#39;)</p>
+
+<p># plot bunny with stuff on top
+  ax = fig.add_subplot(223)
+  ax.imshow(img)
+  xmin,xmax = ax.get_xlim() # plot changes the plotting limits
+  ymin,ymax = ax.get_ylim() # snag them here for future uses
+  x = np.linspace(100, 700, 10)
+  y = np.sin(x/100)*300 + 300
+  ax.plot(x,y)
+  ax.set_xlim(xmin,xmax) # reset the limits to what imshow would have them be
+  ax.set_ylim(ymin,ymax)
+  ax.set_title(&#39;bunny with overlaid plots&#39;)</p>
+
+<p># plot an array of doubles
+  ax = fig.add_subplot(222)
+  x = np.linspace(0,200, 10)
+  y = np.linspace(0,200, 10)
+  x,y = np.meshgrid(x,y)
+  z = np.sin(x/200. * 2<em>np.pi) * np.sin(y/200. * 2</em>np.pi) * x/200 * y/200
+  image = ax.imshow(z)
+  plt.colorbar(image)
+  ax.set_title(&#39;imshow() of array&#39;)</p>
+
+<p># plot pcolor of z
+  ax = fig.add_subplot(224)
+  image = ax.pcolor(z)
+  plt.colorbar(image)
+  ax.set_title(&#39;pcolor() of same array array&#39;)</p>
+
+<p>plt.show()
+```</p>
+
+<h1 id="shared-axes-across-subplots">Shared Axes Across Subplots</h1>
+
+<p>Take a look at the following plotting script. It plots 4 subplots. If
+the bottom left subplot is the anchor, 1 subplot shares the xaxis (top
+left). 1 subplot shares the yaxis (bottom right). 1 subplot shares both
+axes (top right).</p>
+
+<p>```python</p>
+
+<p>from matplotlib import pyplot as plt
+  import numpy as np</p>
+
+<p>t = np.arange(0.01, 5.0, 0.01)
+  s1 = np.sin(2<em>np.pi</em>t)
+  s2 = np.exp(-t)
+  s3 = np.sin(4<em>np.pi</em>t)</p>
+
+<p>fig = plt.figure()
+  ax1 = fig.add_subplot(223)
+  ax1.plot(t,s1)
+  ax1.axvline(2, color=&#39;k&#39;, lw=3)
+  ax1.axhline(0, color=&#39;r&#39;, lw=3)</p>
+
+<p>## share x only
+  ax2= fig.add_subplot(221, sharex
+  ax1)
+  ax2.plot(t, s2)
+  ax2.axvline(2, color=&#39;k&#39;, lw=3)
+  ax2.axhline(0, color=&#39;r&#39;, lw= 3)
+  # make x tick labels invisible
+  plt.setp( ax2.get_xticklabels(), visible=False)</p>
+
+<p>## share x and y
+  ax3 = fig.add_subplot(222,  sharex= ax1, sharey=ax1)
+  ax3.plot(t, s3)
+  ax3.axvline(2, color=&#39;k&#39;, lw=3)
+  ax3.axhline(0, color= &#39;r&#39;, lw=3)
+  ax3.set_xlim(0.01,5.0)
+  # make tick labels small
+  plt.setp( ax3.get_xticklabels(), fontsize=6)
+  plt.setp( ax3.get_yticklabels(), fontsize=6)</p>
+
+<p>## share y only
+  ax4 = fig.add=subplot(224, sharey = ax1)
+  ax4.plot(t, s3)
+  ax4.axvline(2, color= &#39;k&#39;, lw = 3)
+  ax4.axhline(0, color= &#39;r&#39;, lw = 3)
+  # make y tick labels invisible
+  plt.setp( ax4.get_yticklabels(), visible=False)</p>
+
+<p>plt.show()
+```</p>
+
+	  <!-- end content -->
+	</div>
+      </div>
+
+      <div class="footer">
+  <a class="label swc-blue-bg" href="admin@software-carpentry.org">Email</a>
+  <a class="label swc-blue-bg" href="https://twitter.com/swcarpentry">Twitter</a>
+  <a class="label swc-blue-bg" href="http://software-carpentry.org/feed.xml">RSS</a>
+  <a class="label swc-blue-bg" href="https://github.com/swcarpentry">GitHub</a>
+  <a class="label swc-blue-bg" href="irc://moznet/sciencelab">IRC</a>
+  <a class="label swc-blue-bg" href="../../LICENSE.html">License</a>
+  <a class="bugreport label swc-blue-bg" href="mailto:admin@software-carpentry.org?subject=bug%20in%20lessons/thw-matplotlib/tutorial.md">Bug Report</a>
+</div>
+
+    </div>
+    <!-- Le javascript
+================================================== -->
+<!-- Placed at the end of the document so the pages load faster -->
+<script src="../../js/jquery-1.9.1.min.js"></script>
+<script src="../../js/bootstrap/bootstrap.min.js"></script>
+
+  </body>
+</html>

@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    
+      <title>NumPy</title>
+    
+    <link rel="shortcut icon" type="image/x-icon" href="../../favicon.ico" />
+<link href="../../css/bootstrap/bootstrap.css" rel="stylesheet" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<link href="../../css/bootstrap/bootstrap-responsive.css" rel="stylesheet" />
+<link rel="stylesheet" type="text/css" href="../../css/swc.css" />
+<link rel="stylesheet" type="text/css" href="../../css/swc-bootstrap.css" />
+<link rel="alternate" type="application/rss+xml" title="The Software Carpentry Blog" href="/feed.xml"/>
+<meta charset="UTF-8" />
+<meta http-equiv="last-modified" content="" />
+<!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+<!--[if lt IE 9]>
+  <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+<![endif]-->
+
+    <link rel="stylesheet" type="text/css" href="../../css/lesson.css" />
+  </head>
+  <body>
+    <div class="container">
+      <div class="banner">
+  <a href="http://software-carpentry.org" title="Software Carpentry">
+    <img alt="Software Carpentry banner" src="../../img/software-carpentry-banner.png" />
+  </a>
+</div>
+
+
+      <div class="row-fluid">
+        <div class="span10 offset1">
+	  <!-- start content -->
+          
+          <h1>NumPy</h1>
+          
+          <p><strong>Based on Lecture Materials By Matthew Terry and Katy Huff</strong></p>
+
+<p>This class will cover a broad overview of NumPy with brief illustrative
+examples geared towards getting people familiar with the basic use
+cases. Since NumPy has many advanced features that may be useful to
+experienced programmers, these notes will occasionally link to more
+advanced examples that readers can peruse on their own time.</p>
+
+<p><strong>Aside: Code Examples</strong></p>
+
+<p>In all the examples below, we assume that <code>import numpy</code> has already been
+executed. If any other modules are needed, we will import them
+explicitly.</p>
+
+<h1 id="numpy-basics">NumPy basics</h1>
+
+<h2 id="what-is-numpy-">What is NumPy ?</h2>
+
+<p>NumPy is a Python package implementing efficient collections of specific
+types of data (generally numerical), similar to the standard array
+module (but with many more features). NumPy arrays differ from lists and
+tuples in that the data is contiguous in memory. A Python <strong>list</strong>, 
+<code>[0, 1, 2]</code>, in contrast, is actually an array of pointers to Python
+objects representing each number. This allows NumPy arrays to be
+considerably faster for numerical operations than Python lists/tuples.</p>
+
+<h2 id="creating-numpy-arrays">Creating NumPy Arrays</h2>
+
+<p>Creating a NumPy array is as simple as passing a sequence to
+numpy.array. You can also explicitly specify the data-type if the
+automatically-chosen one would be unsuitable.</p>
+
+<p>```python    </p>
+
+<blockquote>
+  <blockquote>
+    <blockquote>
+      <p>A = numpy.array([1, 2.3, 4]) <br />
+A.dtype 
+  dtype(&#39;float64&#39;) <br />
+B= numpy.array([1, 2.3, 4], dtype int) <br />
+B.dtype <br />
+  dtype(&#39;int32&#39;) 
+```</p>
+    </blockquote>
+  </blockquote>
+</blockquote>
+
+<p>As you might expect, creating a NumPy array this way can be slow, since
+it must manually convert each element of a list into its equivalent C
+type (int objects become C ints, etc). There are many other ways to
+create NumPy arrays, such as <strong>numpy.identity</strong>, <strong>numpy.zeros</strong>,
+<strong>numpy.zeros_like</strong>, or by manually specifying the dimensions and type
+of the array with the low-level creation function:</p>
+
+<p>```python    </p>
+
+<p>numpy.ndarray((2, 3, 4), dtype=complex) # new 2x3x4 array of complex numbers 
+```</p>
+
+<p>For many of the examples below, we will be using <strong>numpy.arange</strong> which,
+similar to the Python built-in function <strong>range</strong>, returns a NumPy array
+of integers from 0 to N-1, inclusive. Like <strong>range</strong>, you can also
+specify a starting value and a step.</p>
+
+<p>```python</p>
+
+<blockquote>
+  <blockquote>
+    <blockquote>
+      <p>numpy.arange(2, 5)
+  array([2, 3, 4])
+numpy.arange(1, 5, 2)
+  array([1, 3])
+numpy.arange(1, 10, 2)
+  array([1, 3, 5, 7, 9])
+```</p>
+    </blockquote>
+  </blockquote>
+</blockquote>
+
+<h3 id="exercise--create-an-array">Exercise : Create an Array</h3>
+
+<p>Create a NumPy array with values ranging from 0 to 10, in increments of
+0.5. Don&#39;t forget to use <strong>help()</strong> to find useful functions!</p>
+
+<h2 id="data-types">Data types</h2>
+
+<p>When creating a NumPy array, you supply a dtype (&quot;data type&quot;), or one is
+chosen for you. There are a total of 21 different array scalar types,
+which can be used to specify the dtype. In addition to the scalar type,
+you may also specify byte order (little- or big-endian) or even multiple
+scalar types to be used as a light-weight tuple (similar to a C struct).
+For everyday use, however, you can just pass in the appropriate scalar
+type and NumPy will figure it out. Some common scalar types include:</p>
+
+<pre><code>int     # Python-compatible int (usually a C long)
+intc    # C int
+float   # Python-compatible float (usually a C double)
+single  # C float
+double  # C double
+complex # Python-compatible complex
+</code></pre>
+
+<h2 id="list-operations">List operations</h2>
+
+<p>For basic operations, NumPy arrays can be accessed just like Python
+lists and tuples. This means that you can use the square brackets to
+access elements, <strong>len()</strong> to access the size of the array, and so on.</p>
+
+<p>```python</p>
+
+<blockquote>
+  <blockquote>
+    <blockquote>
+      <p>A = numpy.arange(5)
+A
+  array([0, 1, 2, 3, 4])
+A[3]
+  3
+A[3] = 42
+A
+  array([ 0,  1,  2, 42,  4])
+len(A)
+  5
+```</p>
+    </blockquote>
+  </blockquote>
+</blockquote>
+
+<h2 id="arithmetic">Arithmetic</h2>
+
+<p>Since NumPy exists to perform efficient numerical operations in Python,
+it stands to reason that NumPy arrays have all the usual arithmetic
+operations available to them. These operations are performed
+element-wise (i.e. the same operation is performed independently on each
+element of the array).</p>
+
+<p>```python</p>
+
+<blockquote>
+  <blockquote>
+    <blockquote>
+      <p>A = numpy.arange(5)
+B = numpy.arange(5, 10)
+A
+  array([0, 1, 2, 3, 4])
+B
+  array([5, 6, 7, 8, 9])
+A+B
+  array([ 5,  7,  9, 11, 13])
+B-A
+  array([5, 5, 5, 5, 5])
+A*B
+  array([ 0,  6, 14, 24, 36])
+```</p>
+    </blockquote>
+  </blockquote>
+</blockquote>
+
+<p>In addition, if one of the arguments is a scalar, that value will be
+applied to all the elements of the array.</p>
+
+<p>```python</p>
+
+<blockquote>
+  <blockquote>
+    <blockquote>
+      <p>A = numpy.arange(5)
+2*A
+  array([0, 2, 4, 6, 8])
+A**2
+  array([ 0,  1,  4,  9, 16])
+A+10
+  array([10, 11, 12, 13, 14])
+```</p>
+    </blockquote>
+  </blockquote>
+</blockquote>
+
+<h2 id="comparison">Comparison</h2>
+
+<p>Much like the basic arithmetic operations we discussed above, comparison
+operations are perfomed element-wise. That is, rather than returning a
+single boolean, comparison operators compare each element in both arrays
+pairwise, and return an <strong>array</strong> of booleans (if the sizes of the input
+arrays are incompatible, the comparison will simply return False). For
+example:</p>
+
+<p>```python</p>
+
+<blockquote>
+  <blockquote>
+    <blockquote>
+      <p>A = numpy.array([1, 2, 3, 4, 5])
+B = numpy.array([1, 1, 3, 3, 5])
+A == B
+  array([ True, False,  True, False,  True], dtype=bool)
+```</p>
+    </blockquote>
+  </blockquote>
+</blockquote>
+
+<p>From here, you can use the methods .any() and .all() to return a single
+boolean indicating whether any or all values in the array are True,
+respectively.</p>
+
+<h2 id="advanced-indexing">Advanced Indexing</h2>
+
+<p>In addition to the usual methods of indexing lists with an integer (or
+with a series of colon-separated integers for a slice), NumPy allows you
+to index arrays in a wide variety of different ways for more advanced
+operations.</p>
+
+<h2 id="multi-dimensional-indexing">Multi-dimensional Indexing</h2>
+
+<p>Unlike Python lists and tuples, NumPy arrays can be multidimensional.
+This complicates somewhat how they are indexed. To access a single
+element, you simply pass in a comma-separated list of indices as a
+subscript. However, there are many other things you can do when indexing
+multidimensional arrays.</p>
+
+<p>For instance, suppose you want the elements of a 2D array where the
+first dimension is 1. NumPy makes this extremely simple:</p>
+
+<p>```python</p>
+
+<blockquote>
+  <blockquote>
+    <blockquote>
+      <p>A = numpy.arange(16).reshape(4, 4)
+A
+  array([[ 0,  1,  2,  3],
+         [ 4,  5,  6,  7],
+         [ 8,  9, 10, 11],
+         [12, 13, 14, 15]])
+A[1]
+  array([4, 5, 6, 7])
+```</p>
+    </blockquote>
+  </blockquote>
+</blockquote>
+
+<p>Now suppose you want the elements of that array where the <strong>second</strong>
+dimension is 1. To do this, you can use &quot;slices&quot; of an entire dimension
+as a placeholder by typing : as your first &quot;index&quot;. Continuing from
+above:</p>
+
+<p>```python</p>
+
+<blockquote>
+  <blockquote>
+    <blockquote>
+      <p>A[:, 1]
+  array([ 1,  5,  9, 13])
+```</p>
+    </blockquote>
+  </blockquote>
+</blockquote>
+
+<p>As you&#39;d expect, this type of indexing can become quite complicated with
+arrays of high dimension.</p>
+
+<h3 id="exercise--selective-array-display">Exercise : Selective Array Display</h3>
+
+<p>Using what we&#39;ve learned about slicing and indexing, print just the
+upper-left quarter of the array A above.</p>
+
+<h2 id="indexing-with-arrays">Indexing with Arrays</h2>
+
+<p>NumPy arrays can be indexed with other arrays, using either an array of
+indices, or an array of booleans of the same length. In the former case,
+NumPy returns a view of the data in the specified indices as a new
+array. In the latter, NumPy returns a view of the array with only the
+elements where the index array is True. (We&#39;ll discuss the difference
+between views and copies in a moment.) This makes normally-tedious
+operations like clamping extremely simple.</p>
+
+<p>Indexing with an array of indices:</p>
+
+<p>```python</p>
+
+<blockquote>
+  <blockquote>
+    <blockquote>
+      <p>A = numpy.arange(5, 10)
+A
+  array([5, 6, 7, 8, 9])
+A[[0, 2, 3]]
+  array([5, 7, 8])
+A[[0, 2, 3]] = 0
+A
+  array([0, 6, 0, 0, 9])
+```</p>
+    </blockquote>
+  </blockquote>
+</blockquote>
+
+<p>Indexing with an array of booleans:</p>
+
+<p>```python</p>
+
+<blockquote>
+  <blockquote>
+    <blockquote>
+      <p>import random
+A = numpy.array([random.randint(0, 10) for i in range(10)])
+A
+  array([10,  5,  1,  2,  3,  9,  3,  4,  9,  8])
+A[A&gt;5] = 5
+A
+  array([5, 5, 1, 2, 3, 5, 3, 4, 5, 5])
+```</p>
+    </blockquote>
+  </blockquote>
+</blockquote>
+
+<h1 id="numpy-gotchas">NumPy Gotchas</h1>
+
+<p>NumPy has some important interface differences from Python lists and
+tuples that can confuse new users of the library. Below are the most
+notable of these.</p>
+
+<h2 id="multiplication-and-addition">Multiplication and Addition</h2>
+
+<p>As you may have noticed above, since NumPy arrays are modeled more
+closely after vectors and matrices, multiplying by a scalar will
+multiply each element of the array, whereas multiplying a list by a
+scalar will repeat that list N times.</p>
+
+<p>```python</p>
+
+<blockquote>
+  <blockquote>
+    <blockquote>
+      <p>numpy.arange(5)<em>2
+  array([0, 2, 4, 6, 8])
+range(5)</em>2
+  [0, 1, 2, 3, 4, 0, 1, 2, 3, 4]
+```</p>
+    </blockquote>
+  </blockquote>
+</blockquote>
+
+<p>Similarly, when adding two NumPy arrays together, we get the vector sum
+back, whereas when adding two lists together, we get the concatenation
+back.</p>
+
+<p>```python</p>
+
+<blockquote>
+  <blockquote>
+    <blockquote>
+      <p>numpy.arange(5) + numpy.arange(5)
+  array([0, 2, 4, 6, 8])
+range(5) + range(5)
+  [0, 1, 2, 3, 4, 0, 1, 2, 3, 4]
+```</p>
+    </blockquote>
+  </blockquote>
+</blockquote>
+
+<h2 id="views-vs-copies">Views vs. Copies</h2>
+
+<p>In order to be as efficient as possible, NumPy uses &quot;views&quot; instead of
+copies wherever possible. That is, NumPy arrays derived from another
+base array generally refer to the &#39;&#39;exact same data&#39;&#39; as the base array.
+The consequence of this is that modification of these derived arrays
+will also modify the base array. You saw this above in how the result of
+an array indexed by an array of indices is a &#39;&#39;copy&#39;&#39;, but an array
+indexed by an array of booleans is a &#39;&#39;view&#39;&#39;. (Phew!)</p>
+
+<p>Specifically, slices of arrays are always views, unlike slices of lists
+or tuples, which are always copies.</p>
+
+<p>```python</p>
+
+<blockquote>
+  <blockquote>
+    <blockquote>
+      <p>A = numpy.arange(5)
+B = A[0:1]
+B[0] = 42
+A
+  array([42,  1,  2,  3,  4])
+&#187;&gt; A = range(5)
+B = A[0:1]
+B[0] = 42
+A
+  [0, 1, 2, 3, 4]
+```</p>
+    </blockquote>
+  </blockquote>
+</blockquote>
+
+<h3 id="exercise--copy-a-numpy-array">Exercise : Copy a NumPy Array</h3>
+
+<p>Figure out how to create a copy of a NumPy array. Remember: since NumPy
+slices are views, you can&#39;t use the trick you&#39;d use for Python lists,
+i.e. copy = list[:].</p>
+
+<h1 id="mathematics-with-numpy">Mathematics with NumPy</h1>
+
+<p>Being designed for scientific computing, NumPy also contains a host of
+common mathematical functions, including linear algebra functions, fast
+Fourier transforms, and probability/statistics functions. While there
+isn&#39;t space to go over &#39;&#39;all&#39;&#39; of these in detail, we will provide an
+overview of the most common/essential of these.</p>
+
+<h2 id="basics">Basics</h2>
+
+<p>All NumPy arrays have a collection of basic operations built-in. Most of
+these can be used to operate only on a particular axis of the array, but
+for simplicity, we will only show them in action on one-dimensional
+arrays.</p>
+
+<p>```python</p>
+
+<blockquote>
+  <blockquote>
+    <blockquote>
+      <p>import random
+A = numpy.array([random.randint(0, 10) for i in range(10)])
+A
+  array([6, 9, 9, 4, 9, 8, 7, 9, 0, 3])
+A.min()
+  0
+A.max()
+  9
+A.mean()
+  6.4000000000000004
+A.std() # standard deviation
+  2.9732137494637012
+A.sum()
+  64
+```</p>
+    </blockquote>
+  </blockquote>
+</blockquote>
+
+<p>For 2-dimensional (or more) arrays, there are some other common
+operations:</p>
+
+<p>```python</p>
+
+<blockquote>
+  <blockquote>
+    <blockquote>
+      <p>A = numpy.arange(16).reshape(4, 4)
+A
+  array([[ 0,  1,  2,  3],
+         [ 4,  5,  6,  7],
+         [ 8,  9, 10, 11],
+         [12, 13, 14, 15]])
+A.T # transpose
+  array([[ 0,  4,  8, 12],
+         [ 1,  5,  9, 13],
+       [ 2,  6, 10, 14],
+       [ 3,  7, 11, 15]])
+A.trace()
+  30
+```</p>
+    </blockquote>
+  </blockquote>
+</blockquote>
+
+<p>There are many more methods like these available with NumPy arrays. Be
+sure to consult the NumPy documentation before writing your own
+versions!</p>
+
+<h2 id="matrices">Matrices</h2>
+
+<p>So far, we&#39;ve used two-dimensional arrays to represent matrix-like
+objects. However, NumPy provides a specialized class for this. The
+matrix class is almost identical to a two-dimensional NumPy array, but
+has a few changes to the interface to simplify common linear algebraic
+tasks. These are: * The <code>*</code> operator is performs matrix multiplication
+* The <code>**</code> operator performs matrix exponentiation * The property <code>.I</code>
+(or the method <code>.getI()</code>) returns the matrix inverse * The property
+<code>.H</code> (or the method <code>.getH()</code>) returns the conjugate transpose</p>
+
+<h3 id="example-solving-a-system-of-linear-equations">Example: Solving a System of Linear Equations</h3>
+
+<p>```python</p>
+
+<blockquote>
+  <blockquote>
+    <blockquote>
+      <p>import numpy.linalg
+A = numpy.matrix([[3, 2, -1], [2, -2, 4], [-1, .5, -1]])
+B = numpy.array([1, -2, 0])
+numpy.linalg.solve(A, B)
+  array([ 1., -2., -2.])
+```</p>
+    </blockquote>
+  </blockquote>
+</blockquote>
+
+<h1 id="universal-functions">Universal Functions</h1>
+
+<p>Universal functions (also called ufuncs) are high-speed, element-wise
+operations on NumPy arrays. They are, in essence, what allows you to
+operate on NumPy arrays efficiently. There are a large number of
+universal functions available covering most of the basic operations that
+get performed on data, like addition, subtraction, logarithms, and so
+on. Calling a ufunc is a simple matter:</p>
+
+<p>```python</p>
+
+<blockquote>
+  <blockquote>
+    <blockquote>
+      <p>A = numpy.arange(1,10)
+numpy.log10(A)
+  array([ 0.        ,  0.30103   ,  0.47712125,  0.60205999,  0.69897   ,
+          0.77815125,  0.84509804,  0.90308999,  0.95424251])
+```</p>
+    </blockquote>
+  </blockquote>
+</blockquote>
+
+<p>In addition to basic operation like above, ufuncs that take two input
+arrays and return an output array can be used in more advanced ways.</p>
+
+<h2 id="ufuncs">ufuncs</h2>
+
+<h3 id="exercise--elementwise-operations">Exercise : Elementwise Operations</h3>
+
+<p>Using ufuncs, calculate the reciprocals of each element in the following
+array:</p>
+
+<p>```python</p>
+
+<p>[8.1, 1.6, 0.9, 4.3, 7.0, 7.3, 4.7, 8.2, 7.2, 3.0,
+  1.4, 9.8, 5.7, 0.7, 8.7, 4.6, 8.8, 0.9, 4.4, 4.4]
+```</p>
+
+<h1 id="external-resources">External Resources</h1>
+
+<p>NumPy has too many features to discuss here. However, there are plenty
+of resources on the web that describe NumPy in detail. Here is a
+selection of them:</p>
+
+<ul>
+  <li><a href="http://docs.scipy.org/doc/numpy/user">NumPy user&#39;s guide</a></li>
+  <li><a href="http://docs.scipy.org/doc/numpy/reference/">NumPy Reference</a></li>
+  <li><a href="http://www.scipy.org/NumPy_for_Matlab_Users">NumPy For Matlab Users</a></li>
+  <li><a href="http://www.scipy.org/Cookbook">NumPy CookBook</a> </li>
+</ul>
+
+	  <!-- end content -->
+	</div>
+      </div>
+
+      <div class="footer">
+  <a class="label swc-blue-bg" href="admin@software-carpentry.org">Email</a>
+  <a class="label swc-blue-bg" href="https://twitter.com/swcarpentry">Twitter</a>
+  <a class="label swc-blue-bg" href="http://software-carpentry.org/feed.xml">RSS</a>
+  <a class="label swc-blue-bg" href="https://github.com/swcarpentry">GitHub</a>
+  <a class="label swc-blue-bg" href="irc://moznet/sciencelab">IRC</a>
+  <a class="label swc-blue-bg" href="../../LICENSE.html">License</a>
+  <a class="bugreport label swc-blue-bg" href="mailto:admin@software-carpentry.org?subject=bug%20in%20lessons/thw-numpy/tutorial.md">Bug Report</a>
+</div>
+
+    </div>
+    <!-- Le javascript
+================================================== -->
+<!-- Placed at the end of the document so the pages load faster -->
+<script src="../../js/jquery-1.9.1.min.js"></script>
+<script src="../../js/bootstrap/bootstrap.min.js"></script>
+
+  </body>
+</html>

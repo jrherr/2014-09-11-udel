@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    
+      <title>Permissions</title>
+    
+    <link rel="shortcut icon" type="image/x-icon" href="../../favicon.ico" />
+<link href="../../css/bootstrap/bootstrap.css" rel="stylesheet" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<link href="../../css/bootstrap/bootstrap-responsive.css" rel="stylesheet" />
+<link rel="stylesheet" type="text/css" href="../../css/swc.css" />
+<link rel="stylesheet" type="text/css" href="../../css/swc-bootstrap.css" />
+<link rel="alternate" type="application/rss+xml" title="The Software Carpentry Blog" href="/feed.xml"/>
+<meta charset="UTF-8" />
+<meta http-equiv="last-modified" content="" />
+<!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+<!--[if lt IE 9]>
+  <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+<![endif]-->
+
+    <link rel="stylesheet" type="text/css" href="../../css/lesson.css" />
+  </head>
+  <body>
+    <div class="container">
+      <div class="banner">
+  <a href="http://software-carpentry.org" title="Software Carpentry">
+    <img alt="Software Carpentry banner" src="../../img/software-carpentry-banner.png" />
+  </a>
+</div>
+
+
+      <div class="row-fluid">
+        <div class="span10 offset1">
+	  <!-- start content -->
+          
+          <h1>Permissions</h1>
+          
+          <p>Unix controls who can read, modify, and run files using <em>permissions</em>.
+We&#39;ll discuss how Windows handles permissions at the end of the section:
+the concepts are similar,
+but the rules are different.</p>
+
+<p>Let&#39;s start with Nelle.
+She has a unique <a href="../../gloss.html#user-name">user name</a>,
+<code>nnemo</code>,
+and a <a href="../../gloss.html#user-id">user ID</a>,
+1404.</p>
+
+<blockquote>
+  <h4 id="why-integer-ids">Why Integer IDs?</h4>
+
+  <p>Why integers for IDs?
+Again, the answer goes back to the early 1970s.
+Character strings like <code>alan.turing</code> are of varying length,
+and comparing one to another takes many instructions.
+Integers,
+on the other hand,
+use a fairly small amount of storage (typically four characters),
+and can be compared with a single instruction.
+To make operations fast and simple,
+programmers often keep track of things internally using integers,
+then use a lookup table of some kind
+to translate those integers into user-friendly text for presentation.
+Of course,
+programmers being programmers,
+they will often skip the user-friendly string part
+and just use the integers,
+in the same way that someone working in a lab might talk about Experiment 28
+instead of &quot;the chronotypical alpha-response trials on anacondas&quot;.</p>
+</blockquote>
+
+<p>Users can belong to any number of <a href="../../gloss.html#user-group">groups</a>,
+each of which has a unique <a href="../../gloss.html#user-group-name">group name</a>
+and numeric <a href="../../gloss.html#user-group-id">group ID</a>.
+The list of who&#39;s in what group is usually stored in the file <code>/etc/group</code>.
+(If you&#39;re in front of a Unix machine right now,
+try running <code>cat /etc/group</code> to look at that file.)</p>
+
+<p>Now let&#39;s look at files and directories.
+Every file and directory on a Unix computer belongs to one owner and one group.
+Along with each file&#39;s content,
+the operating system stores the numeric IDs of the user and group that own it.</p>
+
+<p>The user-and-group model means that
+for each file
+every user on the system falls into one of three categories:
+the owner of the file,
+someone in the file&#39;s group,
+and everyone else.</p>
+
+<p>For each of these three categories,
+the computer keeps track of
+whether people in that category can read the file,
+write to the file,
+or execute the file
+(i.e., run it if it is a program).</p>
+
+<p>For example, if a file had the following set of permissions:</p>
+
+<table class="table table-striped">
+<tr><td></td><th>user</th><th>group</th><th>all</th></tr>
+<tr><th>read</th><td>yes</td><td>yes</td><td>no</td></tr>
+<tr><th>write</th><td>yes</td><td>no</td><td>no</td></tr>
+<tr><th>execute</th><td>no</td><td>no</td><td>no</td></tr>
+</table>
+
+<p>it would mean that:</p>
+
+<ul>
+  <li>the file&#39;s owner can read and write it, but not run it;</li>
+  <li>other people in the file&#39;s group can read it, but not modify it or run it; and</li>
+  <li>everybody else can do nothing with it at all.</li>
+</ul>
+
+<p>Let&#39;s look at this model in action.
+If we <code>cd</code> into the <code>labs</code> directory and run <code>ls -F</code>,
+it puts a <code>*</code> at the end of <code>setup</code>&#39;s name.
+This is its way of telling us that <code>setup</code> is executable,
+i.e.,
+that it&#39;s (probably) something the computer can run.</p>
+
+<pre class="in"><code>$ cd labs
+$ ls -F
+</code></pre>
+<pre class="out"><code>safety.txt    setup*     waiver.txt
+</code></pre>
+
+<blockquote>
+  <h4 id="necessary-but-not-sufficient">Necessary But Not Sufficient</h4>
+
+  <p>The fact that something is marked as executable
+doesn&#39;t actually mean it contains a program of some kind.
+We could easily mark this HTML file as executable
+using the commands that are introduced below.
+Depending on the operating system we&#39;re using,
+trying to &quot;run&quot; it will either fail
+(because it doesn&#39;t contain instructions the computer recognizes)
+or cause the operating system to open the file
+with whatever application usually handles it
+(such as a web browser).</p>
+</blockquote>
+
+<p>Now let&#39;s run the command <code>ls -l</code>:</p>
+
+<pre class="in"><code>$ ls -l
+</code></pre>
+<pre class="out"><code>-rw-rw-r-- 1 vlad bio  1158  2010-07-11 08:22 safety.txt
+-rwxr-xr-x 1 vlad bio 31988  2010-07-23 20:04 setup
+-rw-rw-r-- 1 vlad bio  2312  2010-07-11 08:23 waiver.txt
+</code></pre>
+
+<p>The <code>-l</code> flag tells <code>ls</code> to give us a long-form listing.
+It&#39;s a lot of information, so let&#39;s go through the columns in turn.</p>
+
+<p>On the right side, we have the files&#39;  names.
+Next to them,
+moving left,
+are the times and dates they were last modified.
+Backup systems and other tools use this information in a variety of ways, 
+but you can use it to tell when you (or anyone else with permission) 
+last changed a file.</p>
+
+<p>Next to the modification time is the file&#39;s size in bytes
+and the names of the user and group that owns it
+(in this case, <code>vlad</code> and <code>bio</code> respectively).
+We&#39;ll skip over the second column for now
+(the one showing <code>1</code> for each file)
+because it&#39;s the first column that we care about most.
+This shows the file&#39;s permissions, i.e., who can read, write, or execute it.</p>
+
+<p>Let&#39;s have a closer look at one of those permission strings:
+<code>-rwxr-xr-x</code>.
+The first character tells us what type of thing this is:
+&#39;-&#39; means it&#39;s a regular file,
+while &#39;d&#39; means it&#39;s a directory,
+and other characters mean more esoteric things.</p>
+
+<p>The next three characters tell us what permissions the file&#39;s owner has.
+Here, the owner can read, write, and execute the file: <code>rwx</code>.
+The middle triplet shows us the group&#39;s permissions.
+If the permission is turned off, we see a dash, so <code>r-x</code> means &quot;read and execute, but not write&quot;.
+The final triplet shows us what everyone who isn&#39;t the file&#39;s owner, or in the file&#39;s group, can do.
+In this case, it&#39;s &#39;r-x&#39; again, so everyone on the system can look at the file&#39;s contents and run it.</p>
+
+<p>To change permissions, we use the <code>chmod</code> command
+(whose name stands for &quot;change mode&quot;).
+Here&#39;s a long-form listing showing the permissions on the final grades in the course Vlad is teaching:</p>
+
+<pre class="in"><code>$ ls -l final.grd
+</code></pre>
+<pre class="out"><code>-rwxrwxrwx 1 vlad bio  4215  2010-08-29 22:30 final.grd
+</code></pre>
+
+<p>Whoops: everyone in the world can read it&mdash;and what&#39;s worse, 
+modify it!
+(They could also try to run the grades file as a program,
+which would almost certainly not work.)</p>
+
+<p>The command to change the owner&#39;s permissions to <code>rw-</code> is:</p>
+
+<pre class="in"><code>$ chmod u=rw final.grd
+</code></pre>
+
+<p>The &#39;u&#39; signals that we&#39;re changing the privileges 
+of the user (i.e., the file&#39;s owner),
+and <code>rw</code> is the new set of permissions.
+A quick <code>ls -l</code> shows us that it worked,
+because the owner&#39;s permissions are now set to read and write:</p>
+
+<pre class="in"><code>$ ls -l final.grd
+</code></pre>
+<pre class="out"><code>-rw-rwxrwx 1 vlad bio  4215  2010-08-30 08:19 final.grd
+</code></pre>
+
+<p>Let&#39;s run <code>chmod</code> again to give the group read-only permission:</p>
+
+<pre class="in"><code>$ chmod g=r final.grd
+$ ls -l final.grd
+</code></pre>
+<pre class="out"><code>-rw-r--rw- 1 vlad bio  4215  2010-08-30 08:19 final.grd
+</code></pre>
+
+<p>And finally,
+let&#39;s give &quot;all&quot; (everyone on the system who isn&#39;t the file&#39;s owner or in its group) no permissions at all:</p>
+
+<pre class="in"><code>$ chmod a= final.grd
+$ ls -l final.grd
+</code></pre>
+<pre class="out"><code>-rw-r----- 1 vlad bio  4215  2010-08-30 08:20 final.grd
+</code></pre>
+
+<p>Here,
+the &#39;a&#39; signals that we&#39;re changing permissions for &quot;all&quot;,
+and since there&#39;s nothing on the right of the &quot;=&quot;,
+&quot;all&quot;&#39;s new permissions are empty.</p>
+
+<p>We can search by permissions, too.
+Here, for example, we can use <code>-type f -perm -u=x</code> to find files
+that the user can execute:</p>
+
+<pre class="in"><code>$ find . -type f -perm -u=x
+</code></pre>
+<pre class="out"><code>./tools/format
+./tools/stats
+</code></pre>
+
+<p>Before we go any further,
+let&#39;s run <code>ls -a -l</code>
+to get a long-form listing that includes directory entries that are normally hidden:</p>
+
+<pre class="in"><code>$ ls -a -l
+</code></pre>
+<pre class="out"><code>drwxr-xr-x 1 vlad bio     0  2010-08-14 09:55 .
+drwxr-xr-x 1 vlad bio  8192  2010-08-27 23:11 ..
+-rw-rw-r-- 1 vlad bio  1158  2010-07-11 08:22 safety.txt
+-rwxr-xr-x 1 vlad bio 31988  2010-07-23 20:04 setup
+-rw-rw-r-- 1 vlad bio  2312  2010-07-11 08:23 waiver.txt
+</code></pre>
+
+<p>The permissions for <code>.</code> and <code>..</code> (this directory and its parent) start with a &#39;d&#39;.
+But look at the rest of their permissions:
+the &#39;x&#39; means that &quot;execute&quot; is turned on.
+What does that mean?
+A directory isn&#39;t a program&mdash;how can we &quot;run&quot; it?</p>
+
+<p>In fact, &#39;x&#39; means something different for directories.
+It gives someone the right to <em>traverse</em> the directory, but not to look at its contents.
+The distinction is subtle, so let&#39;s have a look at an example.
+Vlad&#39;s home directory has three subdirectories called <code>venus</code>, <code>mars</code>, and <code>pluto</code>:</p>
+
+<p><img src="img/x-for-directories.svg" alt="Execute Permission for Directories" /></p>
+
+<p>Each of these has a subdirectory in turn called <code>notes</code>,
+and those sub-subdirectories contain various files.
+If a user&#39;s permissions on <code>venus</code> are &#39;r-x&#39;,
+then if she tries to see the contents of <code>venus</code> and <code>venus/notes</code> using <code>ls</code>,
+the computer lets her see both.
+If her permissions on <code>mars</code> are just &#39;r&#8211;&#39;,
+then she is allowed to read the contents of both <code>mars</code> and <code>mars/notes</code>.
+But if her permissions on <code>pluto</code> are only &#39;&#8211;x&#39;,
+she cannot see what&#39;s in the <code>pluto</code> directory:
+<code>ls pluto</code> will tell her she doesn&#39;t have permission to view its contents.
+If she tries to look in <code>pluto/notes</code>, though, the computer will let her do that.
+She&#39;s allowed to go through <code>pluto</code>, but not to look at what&#39;s there.
+This trick gives people a way to make some of their directories visible to the world as a whole
+without opening up everything else.</p>
+
+<h4 id="what-about-windows">What about Windows?</h4>
+
+<p>Those are the basics of permissions on Unix.
+As we said at the outset, though, things work differently on Windows.
+There, permissions are defined by <a href="../../gloss.html#access-control-list">access control lists</a>,
+or ACLs.
+An ACL is a list of pairs, each of which combines a &quot;who&quot; with a &quot;what&quot;.
+For example,
+you could give the Mummy permission to append data to a file without giving him permission to read or delete it,
+and give Frankenstein permission to delete a file without being able to see what it contains.</p>
+
+<p>This is more flexible that the Unix model,
+but it&#39;s also more complex to administer and understand on small systems.
+(If you have a large computer system,
+<em>nothing</em> is easy to administer or understand.)
+Some modern variants of Unix support ACLs as well as the older read-write-execute permissions,
+but hardly anyone uses them.</p>
+
+	  <!-- end content -->
+	</div>
+      </div>
+
+      <div class="footer">
+  <a class="label swc-blue-bg" href="admin@software-carpentry.org">Email</a>
+  <a class="label swc-blue-bg" href="https://twitter.com/swcarpentry">Twitter</a>
+  <a class="label swc-blue-bg" href="http://software-carpentry.org/feed.xml">RSS</a>
+  <a class="label swc-blue-bg" href="https://github.com/swcarpentry">GitHub</a>
+  <a class="label swc-blue-bg" href="irc://moznet/sciencelab">IRC</a>
+  <a class="label swc-blue-bg" href="../../LICENSE.html">License</a>
+  <a class="bugreport label swc-blue-bg" href="mailto:admin@software-carpentry.org?subject=bug%20in%20novice/extras/04-permissions.md">Bug Report</a>
+</div>
+
+    </div>
+    <!-- Le javascript
+================================================== -->
+<!-- Placed at the end of the document so the pages load faster -->
+<script src="../../js/jquery-1.9.1.min.js"></script>
+<script src="../../js/bootstrap/bootstrap.min.js"></script>
+
+  </body>
+</html>

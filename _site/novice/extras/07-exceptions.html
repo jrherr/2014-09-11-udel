@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    
+      <title>Exceptions</title>
+    
+    <link rel="shortcut icon" type="image/x-icon" href="../../favicon.ico" />
+<link href="../../css/bootstrap/bootstrap.css" rel="stylesheet" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<link href="../../css/bootstrap/bootstrap-responsive.css" rel="stylesheet" />
+<link rel="stylesheet" type="text/css" href="../../css/swc.css" />
+<link rel="stylesheet" type="text/css" href="../../css/swc-bootstrap.css" />
+<link rel="alternate" type="application/rss+xml" title="The Software Carpentry Blog" href="/feed.xml"/>
+<meta charset="UTF-8" />
+<meta http-equiv="last-modified" content="" />
+<!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+<!--[if lt IE 9]>
+  <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+<![endif]-->
+
+    <link rel="stylesheet" type="text/css" href="../../css/lesson.css" />
+  </head>
+  <body>
+    <div class="container">
+      <div class="banner">
+  <a href="http://software-carpentry.org" title="Software Carpentry">
+    <img alt="Software Carpentry banner" src="../../img/software-carpentry-banner.png" />
+  </a>
+</div>
+
+
+      <div class="row-fluid">
+        <div class="span10 offset1">
+	  <!-- start content -->
+          
+          <h1>Exceptions</h1>
+          
+          <p>Assertions help us catch errors in our code,
+but things can go wrong for other reasons,
+like missing or badly-formatted files.
+Most modern programming languages allow programmers to use
+<a href="../../gloss.html#exception">exceptions</a> to separate
+what the program should do if everything goes right
+from what it should do if something goes wrong.
+Doing this makes both cases easier to read and understand.</p>
+
+<p>For example,
+here&#39;s a small piece of code that tries to read parameters and a grid from two
+separate files,
+and reports an error if either goes wrong:</p>
+
+<pre class="in"><code>try:
+    params = read_params(param_file)
+    grid = read_grid(grid_file)
+except:
+    log.error('Failed to read input file(s)')
+    sys.exit(ERROR)
+</code></pre>
+
+<p>We join the normal case and the error-handling code using the keywords <code>try</code> and
+<code>except</code>.
+These work together like <code>if</code> and <code>else</code>:
+the statements under the <code>try</code> are what should happen if everything works,
+while the statements under <code>except</code> are what the program should do if something
+goes wrong.</p>
+
+<p>We have actually seen exceptions before without knowing it,
+since by default,
+when an exception occurs,
+Python prints it out and halts our program.
+For example,
+trying to open a nonexistent file triggers a type of exception called an
+<code>IOError</code>,
+while trying to access a list element that doesn&#39;t exist
+causes an <code>IndexError</code>:</p>
+
+<pre class="in"><code>open('nonexistent-file.txt', 'r')
+</code></pre>
+<pre class="err"><code>---------------------------------------------------------------------------
+IOError                                   Traceback (most recent call last)
+
+&lt;ipython-input-13-58cbde3dd63c&gt; in &lt;module&gt;()
+----&gt; 1 open('nonexistent-file.txt', 'r')
+
+IOError: [Errno 2] No such file or directory: 'nonexistent-file.txt'
+</code></pre>
+<pre class="in"><code>values = [0, 1, 2]
+print values[999]
+</code></pre>
+<pre class="err"><code>---------------------------------------------------------------------------
+IndexError                                Traceback (most recent call last)
+
+&lt;ipython-input-14-7fed13afc650&gt; in &lt;module&gt;()
+1 values = [0, 1, 2]
+----&gt; 2 print values[999]
+
+IndexError: list index out of range
+</code></pre>
+
+<p>We can use <code>try</code> and <code>except</code> to deal with these errors ourselves
+if we don&#39;t want the program simply to fall over:</p>
+
+<pre class="in"><code>try:
+    reader = open('nonexistent-file.txt', 'r')
+except IOError:
+    print 'Whoops!'
+</code></pre>
+<pre class="err"><code>Whoops!
+</code></pre>
+
+<p>When Python executes this code,
+it runs the statement inside the <code>try</code>.
+If that works, it skips over the <code>except</code> block without running it.
+If an exception occurs inside the <code>try</code> block,
+though,
+Python compares the type of the exception to the type specified by the <code>except</code>.
+If they match, it executes the code in the <code>except</code> block.</p>
+
+<p><code>IOError</code> is the particular kind of exception Python uses
+when there is a problem related to input and output,
+such as files not existing
+or the program not having the permissions it needs to read them.
+We can put as many lines of code in a <code>try</code> block as we want,
+just as we can put many statements under an <code>if</code>.
+We can also handle several different kinds of errors afterward.
+For example,
+here&#39;s some code to calculate the entropy at each point in a grid:</p>
+
+<pre class="in"><code>try:
+    params = read_params(param_file)
+    grid = read_grid(grid_file)
+    entropy = lee_entropy(params, grid)
+    write_entropy(entropy_file, entropy)
+except IOError:
+    report_error_and_exit('IO error')
+except ArithmeticError:
+    report_error_and_exit('Arithmetic error')
+</code></pre>
+
+<p>Python tries to run the four functions inside the <code>try</code> as normal.
+If an error occurs in any of them,
+Python immediately jumps down
+and tries to find an <code>except</code> of the corresponding type:
+if the exception is an <code>IOError</code>,
+Python jumps into the first error handler,
+while if it&#39;s an <code>ArithmeticError</code>,
+Python jumps into the second handler instead.
+It will only execute one of these,
+just as it will only execute one branch
+of a series of <code>if</code>/<code>elif</code>/<code>else</code> statements.</p>
+
+<p>This layout has made the code easier to read,
+but we&#39;ve lost something important:
+the message printed out by the <code>IOError</code> branch doesn&#39;t tell us
+which file caused the problem.
+We can do better if we capture and hang on to the object that Python creates
+to record information about the error:</p>
+
+<pre class="in"><code>try:
+    params = read_params(param_file)
+    grid = read_grid(grid_file)
+    entropy = lee_entropy(params, grid)
+    write_entropy(entropy_file, entropy)
+except IOError as err:
+    report_error_and_exit('Cannot read/write' + err.filename)
+except ArithmeticError as err:
+    report_error_and_exit(err.message)
+</code></pre>
+
+<p>If something goes wrong in the <code>try</code>,
+Python creates an exception object,
+fills it with information,
+and assigns it to the variable <code>err</code>.
+(There&#39;s nothing special about this variable name&mdash;we can use anything we
+want.)
+Exactly what information is recorded depends on what kind of error occurred;
+Python&#39;s documentation describes the properties of each type of error in detail,
+but we can always just print the exception object.
+In the case of an I/O error,
+we print out the name of the file that caused the problem.
+And in the case of an arithmetic error,
+printing out the message embedded in the exception object is what Python would
+have done anyway.</p>
+
+<p>So much for how exceptions work:
+how should they be used?
+Some programmers use <code>try</code> and <code>except</code> to give their programs default
+behaviors.
+For example,
+if this code can&#39;t read the grid file that the user has asked for,
+it creates a default grid instead:</p>
+
+<pre class="in"><code>try:
+    grid = read_grid(grid_file)
+except IOError:
+    grid = default_grid()
+</code></pre>
+
+<p>Other programmers would explicitly test for the grid file,
+and use <code>if</code> and <code>else</code> for control flow:</p>
+
+<pre class="in"><code>if file_exists(grid_file):
+    grid = read_grid(grid_file)
+else:
+    grid = default_grid()
+</code></pre>
+
+<p>It&#39;s mostly a matter of taste,
+but we prefer the second style.
+As a rule,
+exceptions should only be used to handle exceptional cases.
+If the program knows how to fall back to a default grid,
+that&#39;s not an unexpected event.
+Using <code>if</code> and <code>else</code>
+instead of <code>try</code> and <code>except</code>
+sends different signals to anyone reading our code,
+even if they do the same thing.</p>
+
+<p>Novices often ask another question about exception handling style,
+but before we address it,
+there&#39;s something in our example that you might not have noticed.
+Exceptions can actually be thrown a long way:
+they don&#39;t have to be handled immediately.
+Take another look at this code:</p>
+
+<pre class="in"><code>try:
+    params = read_params(param_file)
+    grid = read_grid(grid_file)
+    entropy = lee_entropy(params, grid)
+    write_entropy(entropy_file, entropy)
+except IOError as err:
+    report_error_and_exit('Cannot read/write' + err.filename)
+except ArithmeticError as err:
+    report_error_and_exit(err.message)
+</code></pre>
+
+<p>The four lines in the <code>try</code> block are all function calls.
+They might catch and handle exceptions themselves,
+but if an exception occurs in one of them that <em>isn&#39;t</em> handled internally,
+Python looks in the calling code for a matching <code>except</code>.
+If it doesn&#39;t find one there,
+it looks in that function&#39;s caller,
+and so on.
+If we get all the way back to the main program without finding an exception
+handler,
+Python&#39;s default behavior is to print an error message like the ones we&#39;ve been
+seeing all along.</p>
+
+<p>This rule is the origin of the rule
+<a href="../rules.html#throw-low-catch-high">throw low, catch high</a>.
+There are many places in our program where an error might occur.
+There are only a few, though, where errors can sensibly be handled.
+For example,
+a linear algebra library doesn&#39;t know whether it&#39;s being called directly from
+the Python interpreter,
+or whether it&#39;s being used as a component in a larger program.
+In the latter case,
+the library doesn&#39;t know if the program that&#39;s calling it is being run from the
+command line or from a GUI.
+The library therefore shouldn&#39;t try to handle or report errors itself,
+because it has no way of knowing what the right way to do this is.
+It should instead just <a href="../../gloss.html#raise-exception">raise</a> an exception,
+and let its caller figure out how best to handle it.</p>
+
+<p>Finally,
+we can raise exceptions ourselves if we want to.
+In fact,
+we <em>should</em> do this,
+since it&#39;s the standard way in Python to signal that something has gone wrong.
+Here,
+for example,
+is a function that reads a grid and checks its consistency:</p>
+
+<pre class="in"><code>def read_grid(grid_file):
+    data = read_raw_data(grid_file)
+    if not grid_consistent(data):
+        raise Exception('Inconsistent grid: ' + grid_file)
+    result = normalize_grid(data)
+    return result
+</code></pre>
+
+<p>The <code>raise</code> statement creates a new exception with a meaningful error message.
+Since <code>read_grid</code> itself doesn&#39;t contain a <code>try</code>/<code>except</code> block,
+this exception will always be thrown up and out of the function,
+to be caught and handled by whoever is calling <code>read_grid</code>.
+We can define new types of exceptions if we want to.
+And we should,
+so that errors in our code can be distinguished from errors in other people&#39;s
+code.
+However,
+this involves classes and objects,
+which is outside the scope of these lessons.</p>
+
+	  <!-- end content -->
+	</div>
+      </div>
+
+      <div class="footer">
+  <a class="label swc-blue-bg" href="admin@software-carpentry.org">Email</a>
+  <a class="label swc-blue-bg" href="https://twitter.com/swcarpentry">Twitter</a>
+  <a class="label swc-blue-bg" href="http://software-carpentry.org/feed.xml">RSS</a>
+  <a class="label swc-blue-bg" href="https://github.com/swcarpentry">GitHub</a>
+  <a class="label swc-blue-bg" href="irc://moznet/sciencelab">IRC</a>
+  <a class="label swc-blue-bg" href="../../LICENSE.html">License</a>
+  <a class="bugreport label swc-blue-bg" href="mailto:admin@software-carpentry.org?subject=bug%20in%20novice/extras/07-exceptions.md">Bug Report</a>
+</div>
+
+    </div>
+    <!-- Le javascript
+================================================== -->
+<!-- Placed at the end of the document so the pages load faster -->
+<script src="../../js/jquery-1.9.1.min.js"></script>
+<script src="../../js/bootstrap/bootstrap.min.js"></script>
+
+  </body>
+</html>

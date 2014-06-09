@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    
+      <title>Programming with R</title>
+    
+    <link rel="shortcut icon" type="image/x-icon" href="../../favicon.ico" />
+<link href="../../css/bootstrap/bootstrap.css" rel="stylesheet" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<link href="../../css/bootstrap/bootstrap-responsive.css" rel="stylesheet" />
+<link rel="stylesheet" type="text/css" href="../../css/swc.css" />
+<link rel="stylesheet" type="text/css" href="../../css/swc-bootstrap.css" />
+<link rel="alternate" type="application/rss+xml" title="The Software Carpentry Blog" href="/feed.xml"/>
+<meta charset="UTF-8" />
+<meta http-equiv="last-modified" content="" />
+<!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+<!--[if lt IE 9]>
+  <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+<![endif]-->
+
+    <link rel="stylesheet" type="text/css" href="../../css/lesson.css" />
+  </head>
+  <body>
+    <div class="container">
+      <div class="banner">
+  <a href="http://software-carpentry.org" title="Software Carpentry">
+    <img alt="Software Carpentry banner" src="../../img/software-carpentry-banner.png" />
+  </a>
+</div>
+
+
+      <div class="row-fluid">
+        <div class="span10 offset1">
+	  <!-- start content -->
+          
+          <h1>Programming with R</h1>
+          
+          <p>FIXME: to be written.</p>
+
+<h1 id="notes-on-building-the-novice-r-material-diego-barneche-on-28mar2014---ill-use-the-starting-file-numbers-as-headings">Notes on building the novice R material (Diego Barneche on 28/Mar/2014) - I&#39;ll use the starting file numbers as headings</h1>
+
+<h2 id="section">00</h2>
+<ul>
+  <li>I dropped the command print from most lines as this is not necessary in R</li>
+</ul>
+
+<h2 id="section-1">01</h2>
+<ul>
+  <li>Do we want to include ggplot here? Isn&#39;t it too soon?</li>
+</ul>
+
+<h2 id="section-2">02</h2>
+<ul>
+  <li>I dropped <code>return</code> from the functions as R does return the last line evaluated within the function regardless. It is not mandatory.</li>
+  <li>On line 28. R does not require indentation, so I have modified the text.</li>
+</ul>
+
+<h2 id="section-3">03</h2>
+<ul>
+  <li>line 99. Not true. One may choose not to use <code>{}</code> if the for loop has one line implemented. Same applies for functions and if statements. Still using <code>{}</code> is good common practice.</li>
+  <li>In my opinion, this section about lists and changes should be together in object types, first lesson. I think there is something about lists already there. This will allow people to understand better dataframes, and why you can use <code>[[]]</code> to extract values for a dataframe just like using <code>$</code>. Also, there is no material for <code>arrays</code>, and how <code>matrix</code> is an special case of <code>array</code>.</li>
+  <li>Another thing to think about is the looping concept. While <code>for</code> loops may be more used in other languages, vectorized operations can be optimized using the <code>apply</code> family. <code>for</code> loops become handy when sequential calculations depend on the previous one or when things are cumulative. In my experience, the concept of <code>for</code> loops is generally harder to teach than <code>apply</code> statements.</li>
+</ul>
+
+<h2 id="section-4">04</h2>
+<ul>
+  <li>I&#39;d rather write TRUE and FALSE explicitly as good practice, better then T or F because this can cause confusion for people that create objects named T and F. I changed it on line 75.</li>
+  <li>Maybe the content from 154 to 161 has a better place in object types?</li>
+</ul>
+
+<h2 id="section-5">05, 06 &amp; 7</h2>
+<ul>
+  <li>Apparnetly we need to expand on those. I am not sure how much we want to cover for these topics (defensive programming, testing, version control, knitr), but we recently developed some advanced material that could be used for examples:
+<a href="http://nicercode.github.io/2014-02-18-UTS/lessons/">Sydney bootcamps</a></li>
+</ul>
+
+<h2 id="simple-formatting-changes">Simple formatting changes</h2>
+<ul>
+  <li>I think we need to be consistent with the use of dataframe(s) or data frame(s). I have standardized for the second</li>
+  <li>I avoid using <code>df</code> for data frames as it can get people confused with degrees of freedom. I changed it to <code>dat</code> instead.</li>
+  <li>I replaced naming objects as existing functions (e.g. summary in 01 file)</li>
+  <li>We also need to be consistent with <code>&lt;-</code> vs. <code>=</code>. I have changed everythin to <code>&lt;-</code></li>
+</ul>
+
+<h2 id="general-comments">General comments</h2>
+
+<ul>
+  <li>
+    <p>Sarah did an awesome job with this material (thanks again Sarah!). However, I think we want to be a bit more careful here as we do not want to teach people how to use R as if they were using Python. These languages are inherently different and, in my opinion, so is the way of teaching them. The concepts surely remain, but the approaches may be different. For example, you will notice that I have eliminated already the havy use of <code>print</code> statements as those are generally not necessary in R (at least not in the examples given). </p>
+  </li>
+  <li>
+    <p>We may have to think of other examples to get people engaged, particularly when dealing with functions. Something that is more realistic to users. Althought the audience can vary a lot, R users in general are after some stats. Giving examples of stats functinos may be an idea.</p>
+  </li>
+  <li>
+    <p>The same idea apply for the plotting file. There are many plotting situations that we could use that would be much more within the context of a regular biologists, statistician, whatever. Again, based on a more advanced material Rich FitzJohn and Daniel Falster produced for the Sydney bootcamps: <a href="http://nicercode.github.io/2014-02-18-UTS/lessons/10-functions/">Plotting lesson</a></p>
+  </li>
+</ul>
+
+
+	  <!-- end content -->
+	</div>
+      </div>
+
+      <div class="footer">
+  <a class="label swc-blue-bg" href="admin@software-carpentry.org">Email</a>
+  <a class="label swc-blue-bg" href="https://twitter.com/swcarpentry">Twitter</a>
+  <a class="label swc-blue-bg" href="http://software-carpentry.org/feed.xml">RSS</a>
+  <a class="label swc-blue-bg" href="https://github.com/swcarpentry">GitHub</a>
+  <a class="label swc-blue-bg" href="irc://moznet/sciencelab">IRC</a>
+  <a class="label swc-blue-bg" href="../../LICENSE.html">License</a>
+  <a class="bugreport label swc-blue-bg" href="mailto:admin@software-carpentry.org?subject=bug%20in%20novice/r/README.md">Bug Report</a>
+</div>
+
+    </div>
+    <!-- Le javascript
+================================================== -->
+<!-- Placed at the end of the document so the pages load faster -->
+<script src="../../js/jquery-1.9.1.min.js"></script>
+<script src="../../js/bootstrap/bootstrap.min.js"></script>
+
+  </body>
+</html>

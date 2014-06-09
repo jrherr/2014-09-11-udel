@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    
+      <title>Using Databases and SQL</title>
+    
+    <link rel="shortcut icon" type="image/x-icon" href="../../favicon.ico" />
+<link href="../../css/bootstrap/bootstrap.css" rel="stylesheet" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<link href="../../css/bootstrap/bootstrap-responsive.css" rel="stylesheet" />
+<link rel="stylesheet" type="text/css" href="../../css/swc.css" />
+<link rel="stylesheet" type="text/css" href="../../css/swc-bootstrap.css" />
+<link rel="alternate" type="application/rss+xml" title="The Software Carpentry Blog" href="/feed.xml"/>
+<meta charset="UTF-8" />
+<meta http-equiv="last-modified" content="" />
+<!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+<!--[if lt IE 9]>
+  <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+<![endif]-->
+
+    <link rel="stylesheet" type="text/css" href="../../css/lesson.css" />
+  </head>
+  <body>
+    <div class="container">
+      <div class="banner">
+  <a href="http://software-carpentry.org" title="Software Carpentry">
+    <img alt="Software Carpentry banner" src="../../img/software-carpentry-banner.png" />
+  </a>
+</div>
+
+
+      <div class="row-fluid">
+        <div class="span10 offset1">
+	  <!-- start content -->
+          
+          <h1>Using Databases and SQL</h1>
+          
+          <p>Relational databases are not as widely used in science as in business,
+but they are still a common way to store large data sets with complex structure.
+Even when the data itself isn&#39;t in a database,
+the metadata could be:
+for example,
+meteorological data might be stored in files on disk,
+but data about when and where observations were made,
+data ranges,
+and so on could be in a database
+to make it easier for scientists to find what they want to.</p>
+
+<h4 id="teaching-notes">Teaching Notes</h4>
+
+<ul>
+  <li>
+    <p>The first few sections (up to &quot;Missing Data&quot;) usually go very quickly.
+The pace usually slows down a bit when null values are discussed
+mostly because learners have a lot of details to keep straight by this point.
+Things <em>really</em> slow down during the discussion of joins,
+but this is the key idea in the whole lesson:
+important ideas like primary keys and referential integrity
+only make sense once learners have seen how they&#39;re used in joins.
+It&#39;s worth going over things a couple of times if necessary (with lots of examples).</p>
+  </li>
+  <li>
+    <p>The sections on creating and modifying data,
+and programming with databases,
+can be dropped if time is short.
+Of the two,
+people seem to care most about how to add data (which only takes a few minutes to demonstrate).</p>
+  </li>
+  <li>
+    <p>Overall,
+this material takes three hours to present assuming that a short exercise is done with each topic.</p>
+  </li>
+  <li>
+    <p>Simple calculations are actually easier to do in a spreadsheet;
+the advantages of using a database become clear as soon as filtering and joins are needed.
+Instructors may therefore want to show a spreadsheet with the information from the four database tables
+consolidated into a single sheet,
+and demonstrate what&#39;s needed in both systems to answer questions like,
+&quot;What was the average radiation reading in 1931?&quot;</p>
+  </li>
+  <li>Some learners may have heard that NoSQL databases
+(i.e., ones that don&#39;t use the relational model)
+are the next big thing,
+and ask why we&#39;re not teaching those.
+The answers are:
+    <ol>
+      <li>Relational databases are far more widely used than NoSQL databases.</li>
+      <li>We have far more experience with relational databases than with any other kind,
+so we have a better idea of what to teach and how to teach it.</li>
+      <li>NoSQL databases are as different from each other as they are from relational databases.
+Until a leader emerges, it isn&#39;t clear <em>which</em> NoSQL database we should teach.</li>
+    </ol>
+  </li>
+  <li>Run <code>sqlite3 survey.db &lt; gen-survey-database.sql</code>
+to re-create survey database before loading notebooks.</li>
+</ul>
+
+	  <!-- end content -->
+	</div>
+      </div>
+
+      <div class="footer">
+  <a class="label swc-blue-bg" href="admin@software-carpentry.org">Email</a>
+  <a class="label swc-blue-bg" href="https://twitter.com/swcarpentry">Twitter</a>
+  <a class="label swc-blue-bg" href="http://software-carpentry.org/feed.xml">RSS</a>
+  <a class="label swc-blue-bg" href="https://github.com/swcarpentry">GitHub</a>
+  <a class="label swc-blue-bg" href="irc://moznet/sciencelab">IRC</a>
+  <a class="label swc-blue-bg" href="../../LICENSE.html">License</a>
+  <a class="bugreport label swc-blue-bg" href="mailto:admin@software-carpentry.org?subject=bug%20in%20novice/teaching/05-sql.md">Bug Report</a>
+</div>
+
+    </div>
+    <!-- Le javascript
+================================================== -->
+<!-- Placed at the end of the document so the pages load faster -->
+<script src="../../js/jquery-1.9.1.min.js"></script>
+<script src="../../js/bootstrap/bootstrap.min.js"></script>
+
+  </body>
+</html>

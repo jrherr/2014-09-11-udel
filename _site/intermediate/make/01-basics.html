@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    
+      <title>Basic Tasks</title>
+    
+    <link rel="shortcut icon" type="image/x-icon" href="../../favicon.ico" />
+<link href="../../css/bootstrap/bootstrap.css" rel="stylesheet" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<link href="../../css/bootstrap/bootstrap-responsive.css" rel="stylesheet" />
+<link rel="stylesheet" type="text/css" href="../../css/swc.css" />
+<link rel="stylesheet" type="text/css" href="../../css/swc-bootstrap.css" />
+<link rel="alternate" type="application/rss+xml" title="The Software Carpentry Blog" href="/feed.xml"/>
+<meta charset="UTF-8" />
+<meta http-equiv="last-modified" content="" />
+<!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+<!--[if lt IE 9]>
+  <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+<![endif]-->
+
+    <link rel="stylesheet" type="text/css" href="../../css/lesson.css" />
+  </head>
+  <body>
+    <div class="container">
+      <div class="banner">
+  <a href="http://software-carpentry.org" title="Software Carpentry">
+    <img alt="Software Carpentry banner" src="../../img/software-carpentry-banner.png" />
+  </a>
+</div>
+
+
+      <div class="row-fluid">
+        <div class="span10 offset1">
+	  <!-- start content -->
+          
+          <h1>Basic Tasks</h1>
+          
+          <p>To illustrate how Make works, here&#39;s the dependency tree for the paper that the robot is working on.
+<code>paper.pdf</code> depends on <code>paper.wdp</code> (the raw word processor file),
+and on <code>figure-1.svg</code> and <code>figure-2.svg</code>.
+<code>figure-1.svg</code> depends on <code>summary-1.dat</code>,
+which in turn depends on <code>data-1-1.dat</code>, <code>data-1-2.dat</code>, and so on,
+while <code>figure-2.svg</code> depends on files with similar names.</p>
+
+<p>In order to create <code>paper.pdf</code>, we have to run the command <code>wdp2pdf paper.wdp</code>.
+For the purpose of this lecture, it doesn&#39;t matter what <code>wdp2pdf</code> actually does.
+All we need to know is that if <code>paper.wdp</code> or either of the figure SVG&#39;s change, we need to re-run this command.</p>
+
+<p>To create <code>figure-1.svg</code>, we run <code>sgr -N -r summary-1.dat</code> and send the output to <code>figure-1.svg</code>.
+Again, it doesn&#39;t matter for now what the <code>sgr</code> command actually is.
+What matters is that we need to run it whenever <code>figure-1.svg</code> is out of date,
+i.e., whenever it is older than the <code>summary-1.dat</code> file it depends on.
+Finally, in order to update <code>summary-1.dat</code>, we need to run our own little script, <code>stats.py</code>,
+with all the files named <code>data-1-something.dat</code> as input.
+We don&#39;t know in advance how many of these there will be: we could conceivably have dozens or hundreds of raw data files to summarize.</p>
+
+<p>That little program <code>stats.py</code> adds one more wrinkle to our example problem.
+We&#39;re constantly updating it as we think of new ways to process our raw data files.
+We&#39;re also finding and fixing bugs more often than we&#39;d like.
+Each time it changes, we should probably update <code>summary-1.dat</code>,
+just in case a new feature or bug fix changes the summary values.
+We should therefore include <code>stats.py</code> in the list of things <code>summary-1.dat</code> depends on,
+so that changes to <code>stats.py</code> will trigger recalculation of <code>summary-1.dat</code>.</p>
+
+<p>This is all a bit much to digest at once, so let&#39;s look at the simplest piece.
+How can we get Make to re-create <code>figure-1.svg</code> automatically whenever <code>summary-1.dat</code> changes?</p>
+
+<p>Let&#39;s start by going into the directory containing the files we&#39;re using in the paper,
+and use the <code>ls</code> command to get a listing of what&#39;s there.
+The <code>-t</code> flag to <code>ls</code> tells it to list things by age, with the youngest file first and the oldest last:</p>
+
+<pre><code>$ ls -t *.dat *.svg
+summary-1.dat    figure-1.svg
+</code></pre>
+
+<p>This listing tells us that our data file <code>summary-1.dat</code> is newer than the SVG file that depends on it,
+so the SVG file needs to be re-created.
+Using our favorite editor, let&#39;s create a file called <code>hello.mk</code> and put these three lines in it.</p>
+
+<pre><code># hello.mk
+figure-1.svg : summary-1.dat
+        sgr -N -r summary-1.dat &gt; figure-1.svg 
+</code></pre>
+
+<p>A configuration file for Make like this one is called a <a href="../../gloss.html#makefile">Makefile</a>.
+The first line, starting with <code>#</code>, is a comment.
+(Our comments should be more meaningful than just the name of the file.)
+The second and third lines are a <a href="../../gloss.html#rule">rule</a> that tell Make what we want to do.</p>
+
+<p>The filename on the left of the colon in the first line is the <a href="../../gloss.html#target">target</a> of the rule.
+The rule tells Make how to update or re-create this file.
+The target&#39;s <a href="../../gloss.html#prerequisite">prerequisites</a>&mdash;the things it depends on&mdash;are listed to the right of the colon.
+In our case, <code>figure-1.svg</code> only has one prerequisite, <code>summary-1.dat</code>.</p>
+
+<p>The second line of the rule is its <a href="../../gloss.html#action">action</a>.
+This tells Make what shell command or commands to run to bring the target up to date if it is older than any of its prerequisites.
+This rule only has one command, but a rule can contain any number.</p>
+
+<p>One thing to note is that the actions in rules <em>must</em> be indented with a single tab character.
+Make will not accept spaces, or mixes of spaces and tabs.
+(As we said in the introduction, it was written by a summer intern in 1975, and sometimes that shows.)</p>
+
+<p>Now that we&#39;ve created our Makefile, we can tell Make to obey its instructions by running <code>gmake</code> from the command line:</p>
+
+<pre><code>$ gmake -f hello.mk
+sgr -N -r summary-1.dat &gt; figure-1.svg
+</code></pre>
+
+<p>Many systems make <code>make</code> an alias for <code>gmake</code>,
+so if the latter doesn&#39;t work for you, try the former name as well.
+The arguments <code>-f hello.mk</code> tell Make that we want it to use the commands in the file <code>hello.mk</code>.
+If we don&#39;t tell it what file to look in,
+it looks for a file called <code>Makefile</code> in the current directory and uses that if it exists.</p>
+
+<p>Make&#39;s output shows us that it has run the command we wanted it to.
+It did this because at least one prerequisite for <code>figure-1.svg</code> was newer than <code>figure-1.svg</code> itself.
+By default, Make uses the time a file was last modified as its age.
+(Opening a file in an editor to view it doesn&#39;t change this timestamp, but any change to its contents will.)
+Since <code>summary-1.dat</code>&#39;s timestamp was younger than <code>figure-1.svg</code>&#39;s,
+Make ran the shell command we gave it and created a new version of <code>figure-1.svg</code>.</p>
+
+<p>Let&#39;s run Make again:</p>
+
+<pre><code>$ gmake -f hello.mk
+</code></pre>
+
+<p>This time, it doesn&#39;t execute any commands.
+This happened&mdash;or didn&#39;t&mdash;because the target is newer than its prerequisites.
+Since there&#39;s nothing to bring up to date, Make doesn&#39;t change anything.</p>
+
+<p>If we were only allowed one rule per file,
+Make wouldn&#39;t be any simpler than typing commands by hand or putting them in little shell scripts.
+Luckily, Make allows us to put any number of rules in a single configuration file.
+Here is another Makefile called <code>double.mk</code> with rules to re-create
+both <code>figure-1.svg</code> and <code>figure-2.svg</code>.
+These rules are identical except for the 1&#39;s and 2&#39;s in the filenames; we&#39;ll see later how to combine these rules into one.</p>
+
+<pre><code># double.mk
+figure-1.svg : summary-1.dat
+        sgr -N -r summary-1.dat &gt; figure-1.svg
+
+figure-2.svg : summary-2.dat
+        sgr -N -r summary-2.dat &gt; figure-2.svg
+</code></pre>
+
+<p>Let&#39;s pretend we&#39;ve just updated our data files by running <code>touch *.dat</code>.
+(The Unix <code>touch</code> command doesn&#39;t change the contents of files, but updates their timestamps as if they had been modified.)
+Now, when we run Make, it re-creates <code>figure-1.svg</code> again&mdash;and then stops:</p>
+
+<pre><code>$ touch *.dat
+$ gmake -f double.mk
+sgr -N -r summary-1.dat &gt; figure-1.svg
+</code></pre>
+
+<p>Why wasn&#39;t <code>figure-2.svg</code> re-created?
+The answer is that Make uses the first rule in the Makefile as its <a href="../../gloss.html#default-rule">default rule</a>.
+Unless it&#39;s told otherwise, it only executes this rule.
+If we want Make to rebuild <code>figure-2.svg</code>, we have to tell it so explicitly.
+We use <code>-f double.mk</code> to tell Make what Makefile to use,
+and then give it the name of the target we want it to handle:</p>
+
+<pre><code>$ gmake -f double.mk figure-2.svg
+sgr -N -r summary-2.dat &gt; figure-2.svg
+</code></pre>
+
+<p>Again, building things one at a time like this is slightly better than typing individual commands, but only slightly.
+To get Make to build everything at once, we have to introduce a <a href="../../gloss.html#phony-target">phony target</a>.
+This is just a target name that doesn&#39;t correspond to any actual file.
+Since it doesn&#39;t actually exist, it can&#39;t ever be up to date, but other things can still depend on it.
+Here&#39;s our third Makefile, <code>phony.mk</code>:</p>
+
+<pre><code># phony.mk
+
+all : figure-1.svg figure-2.svg
+
+figure-1.svg : summary-1.dat
+        sgr -N -r summary-1.dat &gt; figure-1.svg
+
+figure-2.svg : summary-2.dat
+        sgr -N -r summary-2.dat &gt; figure-2.svg
+</code></pre>
+
+<p>We&#39;ve introduced a phony target called <code>all</code>, which depends on <code>figure-1.svg</code> and <code>figure-2.svg</code>.
+Since there&#39;s no file called <code>all</code> in the current directory,
+if we type <code>make all</code>,
+Make will decide that the <code>all</code> target is out of date.
+And since <code>all</code> depends on <code>figure-1.svg</code> and <code>figure-2.svg</code>,
+Make will go and update them both, which is exactly what we want.</p>
+
+<p>Let&#39;s <code>touch</code> our data files again, and run <code>make -f phony.mk all</code>.
+Sure enough, Make runs the <code>sgr</code> command twice to re-create both figures:</p>
+
+<pre><code>$ touch *.dat
+$ gmake -f phony.mk
+sgr -N -r summary-1.dat &gt; figure-1.svg
+sgr -N -r summary-2.dat &gt; figure-2.svg
+</code></pre>
+
+<p>One thing to note is that the order in which commands are executed is arbitrary.
+Make could decide to update <code>figure-2.svg</code> first, rather than <code>figure-1.svg</code>,
+because there&#39;s no dependency to respect between the two.
+Make could also update them in parallel if it had more than one processor to use&mdash;we&#39;ll return to this idea later.</p>
+
+<p>Something else this example shows us is that a single thing can be a target in one rule, and a prerequisite in others.
+The dependencies between the files mentioned in the Makefile make up a directed graph.
+In order for Make to run, this graph must not contain any cycles.
+For example, if X depends on Y, Y depends on Z, and Z depends on X,
+everything depends on something else, so there is nothing Make can build first.
+If it detects a cycle in a Makefile, Make will print an error message and stop.
+Unfortunately, whether or not a cycle exists depends on which files exist,
+and Make&#39;s error message is usually not particularly informative.</p>
+
+	  <!-- end content -->
+	</div>
+      </div>
+
+      <div class="footer">
+  <a class="label swc-blue-bg" href="admin@software-carpentry.org">Email</a>
+  <a class="label swc-blue-bg" href="https://twitter.com/swcarpentry">Twitter</a>
+  <a class="label swc-blue-bg" href="http://software-carpentry.org/feed.xml">RSS</a>
+  <a class="label swc-blue-bg" href="https://github.com/swcarpentry">GitHub</a>
+  <a class="label swc-blue-bg" href="irc://moznet/sciencelab">IRC</a>
+  <a class="label swc-blue-bg" href="../../LICENSE.html">License</a>
+  <a class="bugreport label swc-blue-bg" href="mailto:admin@software-carpentry.org?subject=bug%20in%20intermediate/make/01-basics.md">Bug Report</a>
+</div>
+
+    </div>
+    <!-- Le javascript
+================================================== -->
+<!-- Placed at the end of the document so the pages load faster -->
+<script src="../../js/jquery-1.9.1.min.js"></script>
+<script src="../../js/bootstrap/bootstrap.min.js"></script>
+
+  </body>
+</html>

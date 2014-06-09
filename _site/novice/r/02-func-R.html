@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    
+    <link rel="shortcut icon" type="image/x-icon" href="../../favicon.ico" />
+<link href="../../css/bootstrap/bootstrap.css" rel="stylesheet" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<link href="../../css/bootstrap/bootstrap-responsive.css" rel="stylesheet" />
+<link rel="stylesheet" type="text/css" href="../../css/swc.css" />
+<link rel="stylesheet" type="text/css" href="../../css/swc-bootstrap.css" />
+<link rel="alternate" type="application/rss+xml" title="The Software Carpentry Blog" href="/feed.xml"/>
+<meta charset="UTF-8" />
+<meta http-equiv="last-modified" content="" />
+<!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+<!--[if lt IE 9]>
+  <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+<![endif]-->
+
+    <link rel="stylesheet" type="text/css" href="../../css/lesson.css" />
+  </head>
+  <body>
+    <div class="container">
+      <div class="banner">
+  <a href="http://software-carpentry.org" title="Software Carpentry">
+    <img alt="Software Carpentry banner" src="../../img/software-carpentry-banner.png" />
+  </a>
+</div>
+
+
+      <div class="row-fluid">
+        <div class="span10 offset1">
+	  <!-- start content -->
+          
+          <h1 id="creating-functions">Creating Functions</h1>
+
+<p>If we only had one data set to analyze, it would probably be faster to load the file into a spreadsheet and use that to plot some simple statistics. 
+But we have twelve files to check, and may have more in future. In this lesson, we&#39;ll learn how to write a function so that we can repeat several operations with a single command.</p>
+
+<h2 id="objectives">Objectives</h2>
+
+<ul>
+  <li>Define a function that takes arguments (parameters).</li>
+  <li>Return a value from a function.</li>
+  <li>Test and debug a function.</li>
+  <li>Explain what a call stack is, and trace changes to the call stack as functions are called.</li>
+  <li>Set default values for function parameters.</li>
+  <li>Explain why we should divide programs into small, single-purpose functions.</li>
+  <li>Defining a function</li>
+</ul>
+
+<p>Let&#39;s start by defining a function <code>fahr_to_kelvin()</code> that converts temperatures from Fahrenheit to Kelvin:</p>
+
+<p><code>r
+fahr_to_kelvin &lt;- function(temp) {
+    kelvin &lt;- ((temp - 32) * (5/9)) + 273.15
+    kelvin
+}
+</code></p>
+
+<p>The definition opens with the name of your new function, which is followed by the call to make it a <code>function()</code> and a parenthesized list of arguments. You can have as many input parameters as you would like (but too many might be bad style). The body, or implementation, is surrounded by curly braces <code>{ }</code>. In many languages, the body of the function - the statements that are executed when it runs - must be indented, typically using 4 spaces. While this is not a mandatory requirement in R coding, we strongly recommend you to adopt this as good practice.</p>
+
+<p>When we call the function, the values we pass to it are assigned to those variables so that we can use them inside the function. The last line within the function is what R will evaluate as a returning value. Remember that the last line has to be a command that will print to the screen, and not an object definition, otherwise the function will return nothing - it will work, but will provide no output. For example, let&#39;s try running our function. Calling our own function is no different from calling any other function:</p>
+
+<p><code>r
+fahr_to_kelvin(32)
+</code></p>
+
+<p><code>
+## [1] 273.1
+</code></p>
+
+<p><code>r
+paste("boiling point of water:", fahr_to_kelvin(212))
+</code></p>
+
+<p><code>
+## [1] "boiling point of water: 373.15"
+</code></p>
+
+<p>We&#39;ve successfully called the function that we defined, and we have access to the value that we returned. However, it the function was redefined as follows</p>
+
+<p><code>r
+fahr_to_kelvin &lt;- function(temp) {
+    kelvin &lt;- ((temp - 32) * (5/9)) + 273.15
+}
+</code></p>
+
+<p>Now typing</p>
+
+<p><code>r
+fahr_to_kelvin(32)
+</code></p>
+
+<p>Will return nothing. Why?</p>
+
+<h1 id="in-python-lessons-now-would-come-debugging">&#8211;&gt; In Python lessons, now would come debugging…</h1>
+
+<h2 id="composing-functions">Composing Functions</h2>
+
+<p>Now that we&#39;ve seen how to turn Fahrenheit into Kelvin, it&#39;s easy to turn Kelvin into Celsius:</p>
+
+<p>```r
+kelvin_to_celsius &lt;- function(temp) {
+    celsius &lt;- temp - 273.15
+    celsius
+}</p>
+
+<p>paste(&quot;absolute zero in Celsius:&quot;, kelvin_to_celsius(0))
+```</p>
+
+<p><code>
+## [1] "absolute zero in Celsius: -273.15"
+</code></p>
+
+<p>What about converting Fahrenheit to Celsius? We could write out the formula, but we don&#39;t need to. Instead, we can compose the two functions we have already created:</p>
+
+<p>```r
+fahr_to_celsius &lt;- function(temp) {
+    temp_k &lt;- fahr_to_kelvin(temp)
+    result &lt;- kelvin_to_celsius(temp_k)
+    result
+}</p>
+
+<p>paste(&quot;freezing point of water in Celsius:&quot;, fahr_to_celsius(32))
+```</p>
+
+<p><code>
+## [1] "freezing point of water in Celsius: 0"
+</code></p>
+
+<p>This is our first taste of how larger programs are built: we define basic operations, then combine them in ever-large chunks to get the effect we want. 
+Real-life functions will usually be larger than the ones shown here - typically half a dozen to a few dozen lines - but they shouldn&#39;t ever be much longer than that, or the next person who reads it won&#39;t be able to understand what&#39;s going on. <strong>Modular programming</strong></p>
+
+<h3 id="challenges">Challenges</h3>
+
+<p>As we&#39;ve seen in our print statements, we can use <code>paste</code> to concatenate strings, <code>paste(a, b, sep = "")</code> is <code>ab</code>. <strong>Note</strong>: the <code>sep</code> can be an important value to define! What is the default? What can <code>sep</code> be?</p>
+
+<ol>
+  <li>Write a function called <code>fence</code> that takes two arguments called <code>original</code> and <code>wrapper</code> and returns a new string that has the <code>wrapper</code> character at the beginning and end of the <code>original</code>:</li>
+</ol>
+
+<p><code>r
+fence("name", "*")
+</code></p>
+
+<p><code>
+## [1] "*name*"
+</code></p>
+
+<h2 id="string-splits">String splits</h2>
+
+<p>If the variable s refers to a string, then we can parse the string into its separate components - each of the characters. Base R has a function called <code>strsplit</code> that can be used to break up strings, into smaller chunks. </p>
+
+<p><code>r
+pangram &lt;- "the quick brown fox jumps over the lazy dog"
+strsplit(pangram, " ")
+</code></p>
+
+<p><code>
+## [[1]]
+## [1] "the"   "quick" "brown" "fox"   "jumps" "over"  "the"   "lazy"  "dog"
+</code></p>
+
+<p>The output from strsplit is in a list. 
+Notice that the unusual first line of <code>strsplit()</code>’s output consists of <code>[[1]]</code>. 
+Similar to the way that R displays vectors, <code>[[1]]</code> means that R is showing the first element of a list. 
+Lists are extremely important concepts in R; they allow you to combine all kinds of variables.
+For example, a list can be made up of many elements, and elements could be vectors, data frames, matrices, or further lists. </p>
+
+<p>In this example, this list has only a single element. Yes, that’s right: The list has one element, but that element is a vector.</p>
+
+<p>To extract an element from a list, you have to use double square brackets: <code>[[</code>. 
+Split your pangram into words, and assign the first element to a new variable called words, using double-square-brackets <code>[[]]</code> subsetting, as follows:</p>
+
+<p><code>r
+words &lt;- strsplit(pangram, " ")[[1]]
+</code></p>
+
+<p>We can then pull out the different words using indexing, where <code>words[1]</code> is the first element in the vector of <code>words</code> and <code>words[9]</code> would be the last:</p>
+
+<p><code>r
+words[2]
+</code></p>
+
+<p><code>
+## [1] "quick"
+</code></p>
+
+<p><code>r
+words[9]
+</code></p>
+
+<p><code>
+## [1] "dog"
+</code></p>
+
+<ol>
+  <li>Write a function <code>out()</code> that returns a string made up of just the first and last characters of its input.
+ a. Outline the steps you need to take to write this function. Discuss with the person sitting next you.
+ b. Write part of the code, make sure it works.
+ c. Write the next step.
+ d. Test your function.
+ e. Can your function handle words of different lengths?</li>
+</ol>
+
+<p>```r
+out &lt;- function(word) {
+    letter &lt;- strsplit(word, &quot;&quot;)[[1]]
+    abbrev &lt;- paste(letter[1], letter[length(letter)], sep = &quot;&quot;)
+    abbrev
+}</p>
+
+<p>out(&quot;helium&quot;)
+```</p>
+
+<p><code>
+## [1] "hm"
+</code></p>
+
+<p><strong>Making our function work with different inputs</strong>. If we want just the last word, but we can&#39;t remember how long our sentence is, we can use <code>length()</code></p>
+
+<p><code>r
+length(words)
+</code></p>
+
+<p><code>
+## [1] 9
+</code></p>
+
+<p><code>r
+words[length(words)]
+</code></p>
+
+<p><code>
+## [1] "dog"
+</code></p>
+
+<p><strong>BREAK</strong></p>
+
+<h2 id="explaining-the-r-environments">Explaining the R Environments</h2>
+
+<p>Let&#39;s take a closer look at what happens when we call <code>fahr_to_celsius(32)</code>. To make things clearer, we&#39;ll start by putting the initial value 32 in a variable and store the final result in one as well:</p>
+
+<p><code>r
+original &lt;- 32
+final &lt;- fahr_to_celsius(original)
+</code></p>
+
+<p><em>Discuss and draw a diagram showing what memory looks like after the first line has been executed. Point to the environment</em></p>
+
+<p>When we call <code>fahr_to_celsius()</code>, R creates a new environment called the <em>evaluation environment</em> that is <em>local</em> to the function. This environment consists of two things</p>
+
+<ol>
+  <li>a <em>frame</em>, which contains the symbol-value pairs (the assignment, called <em>binding</em>, of a value to a variable),</li>
+  <li>an <em>enclosure</em>, which points to the enclosing environment, i.e. the environment where the function was called.</li>
+</ol>
+
+<p>Initially, the <em>frame</em> only holds the object <code>temp</code>. Until is is used, <code>temp</code> in <em>unevaluated</em>; in effect it is a placeholder for whatever value we passed to the <code>temp</code> argument, which gets resolved as needed. This is known as <em>lazy evaluation</em>.</p>
+
+<p><em>Scoping</em> refers to the rules by which languages look up the value of a variable (symbol). R has two type of scoping rules</p>
+
+<ol>
+  <li><em>lexically</em> scoping, and</li>
+  <li><em>dynamic</em> scoping.</li>
+</ol>
+
+<p>We won&#39;t discuss <em>dynamic</em> scoping heres. Basically, <em>lexical</em> scoping means that R looks up values for variables (symbols) based on how functions were nested when they were <em>called</em>. If a name isn&#39;t defined inside a function, R will look for the name in in the <em>parent frame</em>, the frame in the calling environment that is one where the function was called</p>
+
+<p><code>r
+a &lt;- 10
+f &lt;- function() {
+    b &lt;- 5
+    a * b
+}
+f()
+</code></p>
+
+<p><code>
+## [1] 50
+</code></p>
+
+<p>There is no name <code>a</code> defined within the body of <code>f()</code>. Following lexical scoping rules, R will look in the <em>parent frame</em> of <code>f()</code> for a name <code>a</code>, which is found and has value <code>10</code>. As <code>f()</code> is defined in the workspace, the enclosing environment of <code>f()</code> is the <em>global environment</em>. Regardless of how functions are nested when called, R will always look for a name from the inside out until the global environment is reached.</p>
+
+<p>When we nest a call to <code>fahr_to_kelvin()</code> inside <code>fahr_to_celsius()</code>, R creates another local environment to hold the variables involved in the evaluation of <code>fahr_to_kelvin()</code>.</p>
+
+<p>When <code>fahr_to_celsius()</code> is called, it in turn calls <code>fahr_to_kelvin()</code>. As <code>temp</code> is passed to <code>fahr_to_kelvin()</code>, R evaluates <code>temp</code> to derive its value and this variable is passed to <code>fahr_to_kelvin()</code>. Now there are two <code>temp</code>s in play</p>
+
+<ol>
+  <li>the <code>temp</code> local to <code>fahr_to_kelvin()</code>, and</li>
+  <li>the <code>temp</code> local to <code>fahr_to_celcius()</code>.</li>
+</ol>
+
+<p>As far as <code>fahr_to_kelvin()</code> is concerned there is only one <code>temp</code>; the <code>temp</code> local to it <em>masks</em> the other <code>temp</code>. That R knows which versions of variables with the same name belong to which function is due to environments.</p>
+
+<p>When the call to <code>fahr_to_kelvin()</code> returns a value R throws away <code>fahr_to_kelvin()</code>&#39;s frame and creates a new variable <code>temp_k</code> in the frame for <code>fahr_to_celsius()</code> to hold the temperature in Kelvin.</p>
+
+<p><code>kelvin_to_celsius()</code> is then called and a new environment to hold that function&#39;s variables is created.</p>
+
+<p>Once again, R throws away that stack frame when <code>kelvin_to_celsius()</code> is done and creates the variable <code>result</code> in the frame of <code>fahr_to_celsius()</code></p>
+
+<p>Finally, when <code>fahr_to_celsius()</code> returns, R throws away its environment and puts <code>result</code> in a new variable called <code>final</code> that lives in the <em>global environment</em> where we called <code>fahr_to_celcius()</code> in the first place.</p>
+
+<p>The summary of this is that the parent frame (the global environment is the parent frame of <code>fahr_to_celsius()</code>, the local environment of <code>fahr_to_celsius()</code> is the parent frame of <code>fahr_to_kelvin()</code>) is the environment where a function was defined (lexical scoping), the parent frame is the frame/environment from which the function was called.</p>
+
+<p>The <em>global environment</em> is the final environment/frame and is always present; it holds the variables we defined outside the functions in our code. What it doesn&#39;t hold are the variables created during function calls. If we try to get the value of <code>temp</code> <em>after</em> our functions have finished running, R tells us that there&#39;s no such thing:</p>
+
+<p><code>r
+paste("final value of temp after all function calls:", temp)
+</code></p>
+
+<p><code>
+## Error: object 'temp' not found
+</code></p>
+
+<p>Why go to all this trouble? Well, here&#39;s a function called <code>span()</code> that calculates the difference between the mininum and maximum values in an array:</p>
+
+<p><code>r
+span &lt;- function(a) {
+    diff &lt;- max(a) - min(a)
+    diff
+}
+</code></p>
+
+<p>Notice <code>span()</code> assigns a value to variable called <code>diff</code>. We might very well use a variable with the same name (<code>diff</code>) to hold data:</p>
+
+<p><code>r
+diff &lt;- c(46, 55, 26, 64, 31, 68, 100, 79, 39, 95)
+span(diff)
+</code></p>
+
+<p><code>
+## [1] 74
+</code></p>
+
+<p>We don&#39;t expect the variable <code>diff</code> to have the value 74 after this function call, so the name <code>diff</code> cannot refer to the same variable defined inside <code>span()</code> as it does in your workspace (the global environment). And yes, we could probably choose a different name than <code>diff</code> for our variable in this case, but we don&#39;t want to have to read every line of R code we write that we use to see what variable names its functions use before calling any of those functions, just in case they change the values of our variables.</p>
+
+<p>The big idea here is <strong>encapsulation</strong>, and it&#39;s the key to writing correct, comprehensible programs. A function&#39;s job is to turn several operations into one so that we can think about a single function call instead of a dozen or a hundred statements each time we want to do something. That only works if functions don&#39;t interfere with each other; if they do, we have to pay attention to the details once again, which quickly overloads our short-term memory.</p>
+
+<h3 id="challenges-1">Challenges</h3>
+
+<ol>
+  <li>We previously wrote functions called <code>fence()</code> and <code>out()</code>. Walk your neighbor step-by-step through what happens when we call</li>
+</ol>
+
+<p><code>r
+abbrev &lt;- out(fence("carbon", "+"))
+</code></p>
+
+<p>Use words or a diagram to explain how the variables change, and how the stack/environment changes. Look at the environment tab in RStudio.</p>
+
+<p><strong>BREAK</strong></p>
+
+<h1 id="testing-and-documenting">Testing and Documenting</h1>
+
+<p>Once we start putting things in functions so that we can re-use them, we need to start testing that those functions are working correctly. To see how to do this, let&#39;s write a function to center a dataset around a particular value:</p>
+
+<p><code>r
+center &lt;- function(data, desired) {
+    new &lt;- (data - mean(data)) + desired
+    new
+}
+</code></p>
+
+<p>We could test this on our actual data, but since we don&#39;t know what the values ought to be, it will be hard to tell if the result was correct. Instead, let&#39;s create a matrix of 0s and then center that around 3. This will make it simple to see if our function is working as expected:</p>
+
+<p><code>r
+z &lt;- matrix(nrow = 2, ncol = 2)
+center(z, 3)
+</code></p>
+
+<p><code>
+##      [,1] [,2]
+## [1,]   NA   NA
+## [2,]   NA   NA
+</code></p>
+
+<p>That looks right, so let&#39;s try center on our real data:</p>
+
+<p><code>r
+center(mat, 0)
+</code></p>
+
+<p>It&#39;s hard to tell from the default output whether the result is correct, but there are a few simple tests that will reassure us:</p>
+
+<p><code>r
+paste("original min, mean, and max are:", min(mat), ",", mean(mat), ",", max(mat))
+</code></p>
+
+<p><code>
+## [1] "original min, mean, and max are: 1 , 800.5 , 1600"
+</code></p>
+
+<p>```r
+centered &lt;- center(mat, 0)</p>
+
+<p>paste(&quot;original min, mean, and max are:&quot;, min(centered), &quot;,&quot;, mean(centered), 
+    &quot;,&quot;, max(centered))
+```</p>
+
+<p><code>
+## [1] "original min, mean, and max are: -799.5 , 0 , 799.5"
+</code></p>
+
+<p>That seems almost right: the original mean was about 6.1, so the lower bound from zero is how about -6.1. The mean of the centered data isn&#39;t quite zero &#8212; we&#39;ll explore why not in the challenges &#8212; but it&#39;s pretty close. We can even go further and check that the standard deviation hasn&#39;t changed:</p>
+
+<p><code>r
+paste("std dev before and after:", sd(mat), sd(centered))
+</code></p>
+
+<p><code>
+## [1] "std dev before and after: 462.024530373298 462.024530373298"
+</code></p>
+
+<p>Those values look the same, but we probably wouldn&#39;t notice if they were different in the sixth decimal place. Let&#39;s do this instead:</p>
+
+<p><code>r
+paste("difference in standard deviations before and after:", sd(mat) - sd(centered))
+</code></p>
+
+<p><code>
+## [1] "difference in standard deviations before and after: 0"
+</code></p>
+
+<p>Sometimes, a very small difference can be detected. This could be due to rounding at very low decimal places. R has a useful function for comparing two objects allowing for rounding errors, <code>all.equal()</code>:</p>
+
+<p><code>r
+all.equal(sd(mat), sd(centered))
+</code></p>
+
+<p><code>
+## [1] TRUE
+</code></p>
+
+<p>It&#39;s still possible that our function is wrong, but it seems unlikely enough that we should probably get back to doing our analysis. We have one more task first, though: we should write some documentation for our function to remind ourselves later what it&#39;s for and how to use it.</p>
+
+<p>A common way to put documentation in software is to add comments like this:</p>
+
+<p><code>r
+# return a new matrix containing the original data centered around the
+# desired value.
+center &lt;- function(data, desired) {
+    new &lt;- (data - mean(data)) + desired
+    new
+}
+</code></p>
+
+<p>Formal documentation for R functions is written in separate <code>.Rd</code> using a markup language similar to LaTeX. The <strong>roxygen2</strong> package allows R coders to write documentation alongside the function code and then process it into the appropriate <code>.Rd</code> files.</p>
+
+<h3 id="challenges-2">Challenges</h3>
+
+<p>This next challenge has several steps. Think about how you break down a difficult problem into manageable pieces.</p>
+
+<ol>
+  <li>Write a function called <code>analyze()</code> that takes a filename as a parameter and displays the 3 graphs you made earlier (average, min and max inflammation over time). i.e., <code>analyze("data/inflammation-01.csv")</code> should produce the graphs already shown, while <code>analyze("inflammation-02.csv")</code> should produce corresponding graphs for the second data set. Be sure to give your function a docstring.</li>
+</ol>
+
+<h2 id="defining-defaults">Defining Defaults</h2>
+
+<p>We have passed parameters to functions in two ways: directly, as in <code>dim(mat)</code>, and by name, as in <code>matrix(data = 0, nrow = 2, ncol = 2)</code>. We can pass arguments to functions without naming them</p>
+
+<p><code>r
+matrix(0, 2, 2)
+</code></p>
+
+<p><code>
+##      [,1] [,2]
+## [1,]    0    0
+## [2,]    0    0
+</code></p>
+
+<p>To understand what&#39;s going on, and make our own functions easier to use, let&#39;s re-define our <code>center()</code> function like this:</p>
+
+<p><code>r
+center &lt;- function(data, desired = 0) {
+    # return a new matrix containing the original data centered around the
+    # desired value.
+    new &lt;- (data - mean(data)) + desired
+    new
+}
+</code></p>
+
+<p>The key change is that the second argument is now written <code>desired = 0</code> instead of just <code>desired</code>. If we call the function with two arguments, it works as it did before:</p>
+
+<p><code>r
+test_data &lt;- matrix(0, 2, 2)
+center(test_data, 3)
+</code></p>
+
+<p><code>
+##      [,1] [,2]
+## [1,]    3    3
+## [2,]    3    3
+</code></p>
+
+<p>But we can also now call <code>center()</code> with just one parameter, in which case <code>desired</code> is automatically assigned the default value of <code>0</code>:</p>
+
+<p><code>r
+more_data &lt;- matrix(0, 2, 2) + 5
+more_data
+</code></p>
+
+<p><code>
+##      [,1] [,2]
+## [1,]    5    5
+## [2,]    5    5
+</code></p>
+
+<p><code>r
+center(more_data)
+</code></p>
+
+<p><code>
+##      [,1] [,2]
+## [1,]    0    0
+## [2,]    0    0
+</code></p>
+
+<p>This is handy: if we usually want a function to work one way, but occasionally need it to do something else, we can allow people to pass a parameter when they need to but provide a default to make the normal case easier.</p>
+
+<p>R has three ways that arguments supplied by you are matched to the *formal arguments * of the function definition</p>
+
+<ol>
+  <li>by complete name, </li>
+  <li>by partial name (matching on initial <em>n</em> characters of the argument name), and</li>
+  <li>by position.</li>
+</ol>
+
+<p>Arguments are matched in the manner outlined above in <em>that order</em>, by complete name, then by partial matching of names, and finally by position.</p>
+
+<p>The example below shows how R matches values to arguments</p>
+
+<p>```r
+display &lt;- function(a = 1, b = 2, c = 3) {
+    paste(&quot;a:&quot;, a, &quot;b:&quot;, b, &quot;c:&quot;, c)
+}</p>
+
+<p>paste(&quot;no parameters:&quot;, display())
+```</p>
+
+<p><code>
+## [1] "no parameters: a: 1 b: 2 c: 3"
+</code></p>
+
+<p><code>r
+paste("one parameter:", display(55))
+</code></p>
+
+<p><code>
+## [1] "one parameter: a: 55 b: 2 c: 3"
+</code></p>
+
+<p><code>r
+paste("two parameters:", display(55, 66))
+</code></p>
+
+<p><code>
+## [1] "two parameters: a: 55 b: 66 c: 3"
+</code></p>
+
+<p><code>r
+paste("three parameters:", display(55, 66, 77))
+</code></p>
+
+<p><code>
+## [1] "three parameters: a: 55 b: 66 c: 77"
+</code></p>
+
+<p>As this example shows, arguments are matched from left to right, and any that haven&#39;t been given a value explicitly get their default value. We can override this behavior by naming the value as we pass it in:</p>
+
+<p><code>r
+paste("only setting the value of c", display(c = 77))
+</code></p>
+
+<p><code>
+## [1] "only setting the value of c a: 1 b: 2 c: 77"
+</code></p>
+
+<p>With that in hand, let&#39;s look at the help for <code>read.csv()</code>:</p>
+
+<p><code>r
+`?`(read.csv)
+</code></p>
+
+<p><em>walk through the help file, point out important items. How to read the defaults, how to know what you need to specify. Definitions and examples&#8230;</em></p>
+
+<p>There&#39;s a lot of information here, but the most important part is the first couple of lines:</p>
+
+<p><code>r
+read.csv(file, header = TRUE, sep = ",", quote = "\"", dec = ".", fill = TRUE, 
+    comment.char = "", ...)
+</code></p>
+
+<p>This tells us that <code>read.csv()</code> has one argument, <code>file</code>, that doesn&#39;t have a default value, and eight others that do. If we call the function like this:</p>
+
+<p><code>r
+read.csv("data/inflammation-01.csv", ",")
+</code></p>
+
+<p><code>
+## Error: invalid argument type
+</code></p>
+
+<p>the filename is assigned to<code>file</code> (which is what we want), but the delimiter string <code>","</code> is assigned to the argument <code>header</code> rather than <code>sep</code>, because <code>header</code> is the second parameter in the list. That&#39;s why we don&#39;t have to provide <code>file =</code> for the filename, but do have to provide <code>sep =</code> for the second parameter.</p>
+
+<p><code>r
+read.csv("data/inflammation-01.csv", sep = ",")
+</code></p>
+
+<h3 id="challenges-3">Challenges</h3>
+
+<p>Rewrite the <code>center()</code> function so that it scales data to lie between 0.0 and 1.0 by default, but will allow the caller to specify lower and upper bounds if they want. Compare your implementation to your neighbor&#39;s: do the two functions always behave the same way?</p>
+
+<h1 id="key-points">Key Points</h1>
+<ul>
+  <li>Define a function using <code>function</code> name(&#8230;params&#8230;).</li>
+  <li>The body of a function should be indented.</li>
+  <li>Call a function using name(&#8230;values&#8230;).</li>
+  <li>Numbers are stored as integers or floating-point numbers.</li>
+  <li>Each time a function is called, a new stack frame is created on the call stack to hold its parameters and local variables.</li>
+  <li>R looks for variables in the current environment before looking for them at the top level.</li>
+  <li>Use help(thing) to view help for something.</li>
+  <li>Put docstrings in functions to provide help for that function.</li>
+  <li>Annotate your code!</li>
+  <li>Specify default values for parameters when defining a function using name=value in the parameter list.</li>
+  <li>Parameters can be passed by matching based on name, by position, or by omitting them (in which case the default value is used).</li>
+</ul>
+
+<h2 id="next-steps">Next Steps</h2>
+
+<p>We now have a function called analyze to visualize a single data set. We could use it to explore all 12 of our current data sets like this:</p>
+
+<p><code>r
+analyze("data/inflammation-01.csv")
+analyze("data/inflammation-02.csv")
+# ...
+analyze("data/inflammation-12.csv")
+</code></p>
+
+<p>but the chances of us typing all 12 filenames correctly aren&#39;t great, and we&#39;ll be even worse off if we get another hundred files. What we need is a way to tell R to do something once for each file, and that will be the subject of the next lesson.</p>
+
+	  <!-- end content -->
+	</div>
+      </div>
+
+      <div class="footer">
+  <a class="label swc-blue-bg" href="admin@software-carpentry.org">Email</a>
+  <a class="label swc-blue-bg" href="https://twitter.com/swcarpentry">Twitter</a>
+  <a class="label swc-blue-bg" href="http://software-carpentry.org/feed.xml">RSS</a>
+  <a class="label swc-blue-bg" href="https://github.com/swcarpentry">GitHub</a>
+  <a class="label swc-blue-bg" href="irc://moznet/sciencelab">IRC</a>
+  <a class="label swc-blue-bg" href="../../LICENSE.html">License</a>
+  <a class="bugreport label swc-blue-bg" href="mailto:admin@software-carpentry.org?subject=bug%20in%20novice/r/02-func-R.md">Bug Report</a>
+</div>
+
+    </div>
+    <!-- Le javascript
+================================================== -->
+<!-- Placed at the end of the document so the pages load faster -->
+<script src="../../js/jquery-1.9.1.min.js"></script>
+<script src="../../js/bootstrap/bootstrap.min.js"></script>
+
+  </body>
+</html>

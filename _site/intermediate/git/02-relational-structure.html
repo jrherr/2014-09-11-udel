@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    
+      <title>Basic Relational Structure of Git Repositories</title>
+    
+    <link rel="shortcut icon" type="image/x-icon" href="../../favicon.ico" />
+<link href="../../css/bootstrap/bootstrap.css" rel="stylesheet" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<link href="../../css/bootstrap/bootstrap-responsive.css" rel="stylesheet" />
+<link rel="stylesheet" type="text/css" href="../../css/swc.css" />
+<link rel="stylesheet" type="text/css" href="../../css/swc-bootstrap.css" />
+<link rel="alternate" type="application/rss+xml" title="The Software Carpentry Blog" href="/feed.xml"/>
+<meta charset="UTF-8" />
+<meta http-equiv="last-modified" content="" />
+<!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+<!--[if lt IE 9]>
+  <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+<![endif]-->
+
+    <link rel="stylesheet" type="text/css" href="../../css/lesson.css" />
+  </head>
+  <body>
+    <div class="container">
+      <div class="banner">
+  <a href="http://software-carpentry.org" title="Software Carpentry">
+    <img alt="Software Carpentry banner" src="../../img/software-carpentry-banner.png" />
+  </a>
+</div>
+
+
+      <div class="row-fluid">
+        <div class="span10 offset1">
+	  <!-- start content -->
+          
+          <h1>Basic Relational Structure of Git Repositories</h1>
+          
+          <h2 id="the-bones-of-git">The Bones of Git</h2>
+
+<p>In earlier lessons, we&#39;ve explored some of the basic procedures for creating and navigating a git repository; in this lesson, we&#39;ll start learning about the formal structure of a git repo, so that we can understand some of git&#39;s more advanced uses when we come to them in later lessons.</p>
+
+<p>As you&#39;ve already seen, the basic building block of a git repo is a <strong>revision</strong>, each of which has a unique <strong>revision hash</strong> - that long string of random-seeming characters associated with each revision visible when you do a <code>git log</code>.  If all git did was create these snapshots of our code, it would still be pretty helpful - but git&#39;s true power comes from how it organizes these revisions, in a relational structure.</p>
+
+<p>Git&#39;s relational structure is essentially one of inheritance - each revision is a child of at least one parent whose content is merged into the child revision (except of course the very first revision; it&#39;s created as the starting point of this little family tree).  For now, let&#39;s start thinking about the simplest example of this structure: a simple chain of revisions, where each revision only inherits from the revision that came immediately before it, and is only inherited by the next revision after it:</p>
+
+<p><code>
+[Rev 0]-----[Rev 1]-----[Rev 2]
+</code></p>
+
+<p>In earlier lessons, this is exactly the structure you were building; every time you did <code>git commit</code>, another revision was getting tacked onto the chain.  In git parlance, this chain is called a <strong>branch</strong>; in later lessons, as the name suggests, we&#39;ll explore how these branches can spit up and merge together, like the branches of a plant.  But for now, we&#39;re just going to deal with one simple, linear chain of commits.  For the curious, in a new git repo, try doing <code>git branch</code>; it should return <code>* master</code>, which indicates you are in a branch called <code>master</code> - that&#39;s the name git creates by default for our first chain of commits.  This is just a curiosity for now, but it&#39;ll be useful to understand later.</p>
+
+<p>Git has more structure than just the chain of commits, too.  Every project has something called the <code>HEAD</code>, which is a term you&#39;ve already encountered.  In our simple single linear branch, <code>HEAD</code> is a pointer to whatever revision git thinks is supposed to be the parent of the revision that&#39;s going to come next.  By default, it always points at the most recent revision in the chain:</p>
+
+<p><code>
+[Rev 0]-----[Rev 1]-----[Rev 2]
+                           ^
+                           |
+               HEAD---------
+</code></p>
+
+<p>You&#39;ve already seen the first simple use of git&#39;s relational structure by way of <code>HEAD</code> - in the above diagram, asking for <code>HEAD~1</code> refers to <code>[Rev 1]</code>, and <code>HEAD~2</code> refers to <code>[Rev 0]</code>; we can simply count backwards from <code>HEAD</code> in order to ask for earlier revisions.</p>
+
+<p>As we saw in earlier lessons, just firing off a <code>git commit</code> at any old time won&#39;t actually do anything if you haven&#39;t done a <code>git add</code> on anything first.  Every time we do <code>git add</code>, we&#39;re taking the current state of a file, and adding it to something called the <strong>index</strong>.  The index is like a staging area where git keeps track of the files to be added to the next revision, and we can think of it as living at the end of our chain of revisions, sticking off of whatever revision <code>HEAD</code> is pointing at:</p>
+
+<p><code>
+[Rev 0]-----[Rev 1]-----[Rev 2]-----(Index)
+                           ^
+                           |
+               HEAD---------
+</code> </p>
+
+<p>The final piece of structure to git is called the <strong>working tree</strong>, which is actually just a fancy name for whatever you&#39;ve saved in the directory containing your project.  Every time you change a file and save it, you&#39;ve modified the working tree.  We can think of it as a box of stuff that lives alongside your git project:</p>
+
+<p><code>
+[Rev 0]-----[Rev 1]-----[Rev 2]-----(Index)        ----------------------
+                           ^                       |    working tree    |
+                           |                       ----------------------
+               HEAD---------
+</code> </p>
+
+<p>Every time you do <code>git add myFile.txt</code>, you&#39;re taking the current state of <code>myFile.txt</code> and adding it to the index, ready to be part of the next revision; every time you do <code>git commit -m 'my message'</code>, you&#39;re packaging up the contents of the index into the next revision in the chain, and moving <code>HEAD</code> to point at that new revision.</p>
+
+<p>Let&#39;s step through an imaginary work cycle like you&#39;ve done before, but now looking at exactly what&#39;s going on inside git at each step.  Say you started with just one file in your project, <code>main.txt</code>; I&#39;ll list it inside the revision boxes like so:</p>
+
+<p><code>
+[Rev 0: main.txt]-----[Rev 1: main.txt]-----[Rev 2: main.txt]-----(Index)        ----------------------
+                                                         ^                       |    working tree    |
+                                                         |                       |    main.txt        |
+                                                         |                       ----------------------
+                                             HEAD---------
+</code> </p>
+
+<p>At each revision, you did some changes to <code>main.txt</code> and committed them, as usual.  Note some version of <code>main.txt</code> is hanging out in the working tree too - it may or may not be different from its earlier versions.  Now let&#39;s say you create a new file, <code>new.txt</code>, and save it in your project directory.  That means it&#39;s just in the working tree, and not in your repo yet:</p>
+
+<p><code>
+[Rev 0: main.txt]-----[Rev 1: main.txt]-----[Rev 2: main.txt]-----(Index)        ----------------------
+                                                         ^                       |    working tree    |
+                                                         |                       |    main.txt        |
+                                                         |                       |    new.txt         |
+                                                         |                       ----------------------
+                                             HEAD---------
+</code> </p>
+
+<p>Now let&#39;s add it to the index with <code>git add new.txt</code>:</p>
+
+<p><code>
+[Rev 0: main.txt]-----[Rev 1: main.txt]-----[Rev 2: main.txt]-----(Index: new.txt)        ----------------------
+                                                         ^                                |    working tree    |
+                                                         |                                |    main.txt        |
+                                                         |                                |    new.txt         |
+                                                         |                                ----------------------
+                                             HEAD---------
+</code></p>
+
+<p>And finally, let&#39;s commit that as a new revision, with <code>git commit -m 'a great new work'</code></p>
+
+<p><code>
+[Rev 0: main.txt]-----[Rev 1: main.txt]-----[Rev 2: main.txt]-----[Rev 3: main.txt -----(Index)
+                                                                          new.txt]                     ----------------------
+                                                                            ^                          |    working tree    |
+                                                                            |                          |    main.txt        |
+                                                                            |                          |    new.txt         |
+                                                                            |                          ----------------------
+                                                                HEAD---------
+</code></p>
+
+<p>A new revision has been created which records the changes you staged to new.txt (in this case, &#39;changes&#39; being the creation of the file), the index has been emptied, and <code>HEAD</code> now points at the latest revision, <code>[Rev 3]</code>.  That&#39;s all there is to it!  That&#39;s what git is doing under the hood when you use the basic tools you&#39;ve learned up to this point.</p>
+
+<p>Now that we understand this basic relational structure, we&#39;re ready to learn about a new tool for walking around our chain of commits: <code>git reset</code>.</p>
+
+<h2 id="git-reset"><code>git reset</code></h2>
+
+<p>Let&#39;s suppose that in the course of our work, we make some kind of mistake, and we want to rewind the project to an earlier point - <code>git reset</code> might be the right tool for the job; think of it as git&#39;s big &#39;undo&#39; button.  <code>git reset</code> has three options to choose from: <code>--hard</code>, <code>--mixed</code>, or <code>--soft</code>.  The simplest to understand is the most drastic: <code>git reset --hard HEAD</code> will empty the index, change everything in the working tree to match the version recorded at <code>HEAD</code>, and move the <code>HEAD</code> pointer to point at whatever revision we pointed at (which in the example of <code>git reset --hard HEAD</code> of course doesn&#39;t move <code>HEAD</code> at all, but it would if we did something like <code>git reset --hard HEAD~1</code>, or used an earlier revision hash instead of <code>HEAD</code>).  So continuing our example from the last section, if we did <code>git reset --hard HEAD~1</code>, our repo would look something like:</p>
+
+<p><code>
+[Rev 0: main.txt]-----[Rev 1: main.txt]-----[Rev 2: main.txt]-----[Rev 3: main.txt -----(Index)
+                                                    ^                     new.txt]                     ----------------------
+                                                    |                                                  |    working tree    |
+                                                    |                                                  |    main.txt        |
+                                                    |                                                  ______________________
+                                                    |                                                 
+                                        HEAD---------
+</code></p>
+
+<p>Notice something very crucial about <code>git reset --hard</code>: <code>new.txt</code> has vanished from the working tree (and, though it&#39;s harder to depict, any changes made to <code>main.txt</code> in <code>[Rev 3]</code> are undone in the working tree, too); this means that <strong>reset &#8211;hard can destroy work if you&#39;re not careful!</strong>  Luckily for us, we committed <code>new.txt</code> in <code>[Rev 3]</code> before we reset, and <code>[Rev 3]</code> still exists; we could do <code>git reset --hard &lt;Rev 3's hash&gt;</code> to go back to <code>[Rev 3]</code>; <code>reset</code> can go forward as well as backwards, if we have the hash around to tell it where to go.  Finally, note that <code>HEAD</code> is now pointing at the revision we reset to; this means that if we start committing again from this point, our chain is going to carry on from <code>[Rev 2]</code>, with <code>[Rev 3]</code> now out of the sequence traversed by <code>HEAD~1</code>, <code>HEAD~2</code>&#8230; : </p>
+
+<p><code>
+[Rev 0: main.txt]-----[Rev 1: main.txt]-----[Rev 2: main.txt]-----[Rev 3: main.txt
+                                                    |                     new.txt]                     ----------------------
+                                                    |                                                  |    working tree    |
+                                                    |                                                  |    main.txt        |
+                                                    |-----[Rev 4: main.txt]-----(Index)                ______________________
+                                                                 ^
+                                                                 |                                                 
+                                                     HEAD---------
+</code></p>
+
+<p>As promised, there are less drastic things you can do than <code>git reset --hard</code>.  Next up is <code>git reset --mixed &lt;revision&gt;</code>, which empties the index and moves <code>HEAD</code> to point at <code>&lt;revision&gt;</code> just like <code>reset --hard</code>, but doesn&#39;t touch the working tree - that way, your working tree is totally safe and no work living there will be destroyed.  A common use for this would be <code>git reset --mixed HEAD</code>, which doesn&#39;t move the <code>HEAD</code> pointer, but just empties the index so you can commit things differently.</p>
+
+<p>The final and most tame option for reset is <code>git reset --soft &lt;revision&gt;</code>.  The <code>--soft</code> flag tells reset to leave the working tree <em>and</em> the index alone, and just move the <code>HEAD</code> pointer to <code>&lt;revision&gt;</code>, so we can use an earlier commit as the parent for our next one.  Notice that <code>git reset --soft HEAD</code> actually does nothing - this one only makes sense for revisions other than <code>HEAD</code>.  A common use for the <code>--soft</code> flag is if you&#39;ve just made a commit, and realize you want to change the commit message; just go <code>git reset --soft HEAD~1</code>, and then recommit with a new message.</p>
+
+<p>To summarize all the flavours of commit and their popular uses, here&#39;s a table:</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Command</th>
+      <th>Effect</th>
+      <th>Common Use</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>git reset --soft</code></td>
+      <td>No changes to working tree or index</td>
+      <td>Change the commit message you just made</td>
+    </tr>
+    <tr>
+      <td><code>git reset --mixed</code></td>
+      <td>Remove staged changes from index</td>
+      <td>Change what&#39;s going into the next commit</td>
+    </tr>
+    <tr>
+      <td><code>git reset --hard</code></td>
+      <td>Remove changed files in index and working tree</td>
+      <td>Completely abandon everything and go back</td>
+    </tr>
+  </tbody>
+</table>
+
+	  <!-- end content -->
+	</div>
+      </div>
+
+      <div class="footer">
+  <a class="label swc-blue-bg" href="admin@software-carpentry.org">Email</a>
+  <a class="label swc-blue-bg" href="https://twitter.com/swcarpentry">Twitter</a>
+  <a class="label swc-blue-bg" href="http://software-carpentry.org/feed.xml">RSS</a>
+  <a class="label swc-blue-bg" href="https://github.com/swcarpentry">GitHub</a>
+  <a class="label swc-blue-bg" href="irc://moznet/sciencelab">IRC</a>
+  <a class="label swc-blue-bg" href="../../LICENSE.html">License</a>
+  <a class="bugreport label swc-blue-bg" href="mailto:admin@software-carpentry.org?subject=bug%20in%20intermediate/git/02-relational-structure.md">Bug Report</a>
+</div>
+
+    </div>
+    <!-- Le javascript
+================================================== -->
+<!-- Placed at the end of the document so the pages load faster -->
+<script src="../../js/jquery-1.9.1.min.js"></script>
+<script src="../../js/bootstrap/bootstrap.min.js"></script>
+
+  </body>
+</html>

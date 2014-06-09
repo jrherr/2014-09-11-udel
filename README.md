@@ -1,4 +1,3 @@
-2014-09-11-udel
-===============
+This is the repository for the Software Carptentry Bootcamp to be held at the University of Delaware on September 11th to 12th, 2014.
 
-Software Carpentry Bootcamp on September 11th-12th, 2014, at the University of Delaware in Newark, DE, USA
+The boot camp webpage can be found [here](http://jrherr.github.io/2014-09-11-udel/)

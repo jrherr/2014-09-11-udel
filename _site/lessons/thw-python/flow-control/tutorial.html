@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    
+      <title>Flow Control in Python</title>
+    
+    <link rel="shortcut icon" type="image/x-icon" href="../../../favicon.ico" />
+<link href="../../../css/bootstrap/bootstrap.css" rel="stylesheet" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<link href="../../../css/bootstrap/bootstrap-responsive.css" rel="stylesheet" />
+<link rel="stylesheet" type="text/css" href="../../../css/swc.css" />
+<link rel="stylesheet" type="text/css" href="../../../css/swc-bootstrap.css" />
+<link rel="alternate" type="application/rss+xml" title="The Software Carpentry Blog" href="/feed.xml"/>
+<meta charset="UTF-8" />
+<meta http-equiv="last-modified" content="" />
+<!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+<!--[if lt IE 9]>
+  <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+<![endif]-->
+
+    <link rel="stylesheet" type="text/css" href="../../../css/lesson.css" />
+  </head>
+  <body>
+    <div class="container">
+      <div class="banner">
+  <a href="http://software-carpentry.org" title="Software Carpentry">
+    <img alt="Software Carpentry banner" src="../../../img/software-carpentry-banner.png" />
+  </a>
+</div>
+
+
+      <div class="row-fluid">
+        <div class="span10 offset1">
+	  <!-- start content -->
+          
+          <h1>Flow Control in Python</h1>
+          
+          <p><strong>Based on materials by Milad Fatenejad and Katy Huff</strong></p>
+
+<h1 id="pasting-into-ipython">Pasting into IPython</h1>
+
+<p>This part of the lesson includes a lot of text, but it will be useful to
+run it yourself in IPython.</p>
+
+<p>To paste text from another application (i.e. these lecture notes) into
+IPython :</p>
+
+<ol>
+  <li>select text from the wiki</li>
+  <li>copy with <strong>ctrl+c</strong></li>
+  <li>in IPython, type <code>%paste</code></li>
+</ol>
+
+<p>The code should paste and execute in IPython.</p>
+
+<p>If you also type %autocall to turn autocall OFF, you may be able to
+paste with <strong>ctrl+v</strong> though this won&#39;t work with all IPython builds.</p>
+
+<h1 id="conditionals">Conditionals</h1>
+
+<p>A conditional (if statement) is some statement that in general says :
+&quot;When some boolean is true, do the following. Elsewise, do this other
+thing.&quot;</p>
+
+<p>Many equivalence test statements exist in Python that are similar in
+other languages:</p>
+
+<p><code>python
+i=1
+j=2
+i==j # i is equal to j : FALSE
+i&lt;j  # i is less than j
+i&lt;=j # i is less than or equal to j : TRUE
+i&gt;j  # i is greater than j
+i&gt;=j # i is greater than or equal to j : FALSE
+i!=j # i is not equal to j : TRUE
+</code></p>
+
+<p>However, python has other equivalence test statements that are fairly
+unique to python. To check whether an object is contained in a list :</p>
+
+<p><code>python
+beatle="John"
+beatles=["George", "Ringo","John", "Paul"]
+print beatle in beatles # is John one of the beatles? : TRUE
+print "Katy" not in beatles # this is also TRUE. 
+</code></p>
+
+<p>The <code>is</code> keyword tests if two variables refer to the same object. For example:</p>
+
+<p><code>python
+a = 1234
+b = 1234
+a == b # True, they have the same value
+a is b # False, are different objects
+</code></p>
+
+<p>It is a common mistake to use <code>is</code> to test for equality between two objects, see the code below.  This only works for a small range of integers and strings in CPython, and is a side effect of the implementation that should <strong>not</strong> be relied upon.</p>
+
+<p><code>python
+a = 1
+b = 1
+a is b # True - special case for 1
+</code></p>
+
+<p>A correct use of <code>is</code> would be to compare objects like lists, for example the same list could be inserted into two different dictionaries. A comparison with <code>is</code> would reveal this:</p>
+
+<p><code>python
+number_list = [1,2,4,8]
+dict1 = {"thing_widths":number_list}
+dict2 = {"item_costs":number_list}
+dict1["thing_widths"] is dict2["item_costs"]  # True - this is the same list
+</code></p>
+
+<p>Note that since the two dictionary values are actually the same object, modifying the list in one of the dictionaries will mean that the values in both dictionaries will change:</p>
+
+<p><code>python
+print dict1, dict2
+dict1["thing_widths"][0] = 222
+print dict1, dict2
+</code></p>
+
+<p>Conditionals (<code>if</code> statements) are also really easy to use in python. Take
+a look at the following example:</p>
+
+<p><code>python
+i = 4
+sign = "zero"
+if i &lt; 0:
+  sign = "negative"
+elif i &gt; 0:
+  sign = "positive"
+else:
+  print "Sign must be zero"
+  print "Have a nice day"
+print sign
+</code></p>
+
+<p>The behavior of this code snippet should be pretty clear, but there is
+something peculiar. How does Python know where the if-statement ends?
+Other languages, like FORTRAN, MatLab, and C/C++ all have some way of
+delimiting blocks of code. For example, in MatLab you begin an if
+statement with the word <code>if</code> and you end it with <code>end if</code>. In C/C++ you
+delimit blocks with curly braces. Python uses <strong>indentation</strong> to delimit
+code blocks. The <strong>indentation</strong> above is NOT just to make things look
+pretty - it tells Python what the body of the <code>if</code>-statement is. This is
+true when ever we create any code blocks, such as the bodies of loops,
+functions or classes.</p>
+
+<p><strong>Aside: Compact if-statement:</strong></p>
+
+<p>Python has an easy to use <code>if</code>-syntax for setting the value of a variable.
+Try entering this into IPython:</p>
+
+<p><code>python
+i = 5
+sign = "positive" if i &gt; 0 else "negative"
+</code></p>
+
+<h1 id="while-loops">While Loops</h1>
+
+<p>Lets start by looking at while loops since they function like while
+loops in many other languages. The example below takes a list of
+integers and computes the product of each number in the list up to the
+-1 element.</p>
+
+<p>A while loop will repeat the instructions within itself until the
+conditional that defines it is no longer true.</p>
+
+<p>```python
+mult = 1
+sequence = [1, 5, 7, 9, 3, -1, 5, 3]
+while sequence[0] != -1:
+  mult = mult * sequence[0]
+  del sequence[0]</p>
+
+<p>print mult
+```</p>
+
+<p>Some new syntax has been introduced in this example.</p>
+
+<ul>
+  <li>
+    <p>On line 4, we compute the product of the elements just to make this
+more interesting.</p>
+  </li>
+  <li>
+    <p>On line 5, we use the <code>del</code> keyword to remove the first element of
+the list, shifting every element down one.</p>
+  </li>
+</ul>
+
+<p><strong>Watch Out</strong></p>
+
+<p>Since a while loop will continue until its conditional is no longer
+true, a <strong>poorly formed</strong> while loop might repeat forever. For example :</p>
+
+<p><code>python
+i=1
+print "Well, there's egg and bacon, egg and spam, egg bacon and"
+while i == 1:
+  print "spam "
+print "or Lobster Thermidor a Crevette with a mornay sauce served in a Provencale manner with shallots..." 
+</code></p>
+
+<p>Since the variable <code>i</code> never changes within the while loop, we can
+expect that the conditional, <code>i==1</code> will remain true forever and the
+while loop will just go round and round, as if this restaurant offered
+nothing but spam. (If you try this at home, please nory, or other iterable). However, sometimes you may need the index value at the same time, for example for some calculation. The <code>enumerate</code> function generates the integer index for you, which can be used instead of the <code>range</code> function. The following two loops are equivalent:</p>
+
+<p>```python
+data_list = [23,45,67]</p>
+
+<p>for i in range(len(data_list)):
+    print data_list[i], &#39; is item number &#39;, i, &#39; in the list&#39;</p>
+
+<p>for i,d in enumerate(data_list):
+    print d, &#39; is item number &#39;, i, &#39; in the list&#39;
+```</p>
+
+<h3 id="zip">zip</h3>
+
+<p>For iterating through multiple sequences, <code>zip</code> can be used to group them together to simultaneous pass through each sequence:</p>
+
+<p>```python
+run_numbers = [1,2,3,4]
+run_times = [12.1, 33.0, 15.1, 22.9]
+directions = [&#39;North&#39;, &#39;South&#39;, &#39;East&#39;, &#39;NorthEast&#39;]</p>
+
+<p>for n, t, d in zip(run_numbers, run_times, directions):
+    print n, t, d
+```</p>
+
+<h1 id="final-example">Final Example</h1>
+
+<p>We&#39;ve seen a lot so far. Lets work through a slightly lengthier example
+together. I&#39;ll use some of the concepts we already saw and introduce a
+few new concepts. To run the example, you&#39;ll need to locate a short file
+containing phone numbers. The file can be found in your 
+repository within the phonenums directory and is called phonenums.txt. 
+Now we have to move IPython to that directory so it can find the
+phonenums.txt file. You navigate within IPython in the same way that you
+navigate in the shell, by entering &quot;cd [path]&quot; .</p>
+
+<p>This example opens a text file containing a list of phone numbers. The
+phone numbers are in the format ###-###-####, one to a line.
+The example code loops through each line in the file and counts the
+number of times each area code appears. The answer is stored in a
+dictionary, where the area code is the key and the number of times it
+occurs is the value.</p>
+
+<p>```python</p>
+
+<p>areacodes = {} # Create an empty dictionary
+f = open(&quot;phonenums.txt&quot;) # Open the text file
+for line in f: # iterate through the text file, one line at a time (think of the file as a list of lines)
+    ac = line.split(&#39;-&#39;)[0] # Split phone number, first element is the area code
+    if not ac in areacodes: # Check if it is already in the dictionary
+        areacodes[ac] = 1 # If not, add it to the dictionary
+    else:
+        areacodes[ac] += 1 # Add one to the dictionary entry</p>
+
+<p>print areacodes # Print the answer
+```</p>
+
+<h2 id="example--iteritems">Example : Iteritems</h2>
+
+<p>Use the iteritems dictionary method in combination with a for loop to
+print the keys/values of the areacodes dictionary one to a line. In
+other words, the goal is to write a loop that prints:</p>
+
+<pre><code>203 4
+800 4
+608 8
+773 3
+</code></pre>
+
+<p>This example is a little tricky to figure out, but give it a shot.</p>
+
+	  <!-- end content -->
+	</div>
+      </div>
+
+      <div class="footer">
+  <a class="label swc-blue-bg" href="admin@software-carpentry.org">Email</a>
+  <a class="label swc-blue-bg" href="https://twitter.com/swcarpentry">Twitter</a>
+  <a class="label swc-blue-bg" href="http://software-carpentry.org/feed.xml">RSS</a>
+  <a class="label swc-blue-bg" href="https://github.com/swcarpentry">GitHub</a>
+  <a class="label swc-blue-bg" href="irc://moznet/sciencelab">IRC</a>
+  <a class="label swc-blue-bg" href="../../../LICENSE.html">License</a>
+  <a class="bugreport label swc-blue-bg" href="mailto:admin@software-carpentry.org?subject=bug%20in%20lessons/thw-python/flow-control/tutorial.md">Bug Report</a>
+</div>
+
+    </div>
+    <!-- Le javascript
+================================================== -->
+<!-- Placed at the end of the document so the pages load faster -->
+<script src="../../../js/jquery-1.9.1.min.js"></script>
+<script src="../../../js/bootstrap/bootstrap.min.js"></script>
+
+  </body>
+</html>

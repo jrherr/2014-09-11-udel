@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    
+      <title>Pipes and Filters</title>
+    
+    <link rel="shortcut icon" type="image/x-icon" href="../../favicon.ico" />
+<link href="../../css/bootstrap/bootstrap.css" rel="stylesheet" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<link href="../../css/bootstrap/bootstrap-responsive.css" rel="stylesheet" />
+<link rel="stylesheet" type="text/css" href="../../css/swc.css" />
+<link rel="stylesheet" type="text/css" href="../../css/swc-bootstrap.css" />
+<link rel="alternate" type="application/rss+xml" title="The Software Carpentry Blog" href="/feed.xml"/>
+<meta charset="UTF-8" />
+<meta http-equiv="last-modified" content="" />
+<!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+<!--[if lt IE 9]>
+  <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+<![endif]-->
+
+    <link rel="stylesheet" type="text/css" href="../../css/lesson.css" />
+  </head>
+  <body>
+    <div class="container">
+      <div class="banner">
+  <a href="http://software-carpentry.org" title="Software Carpentry">
+    <img alt="Software Carpentry banner" src="../../img/software-carpentry-banner.png" />
+  </a>
+</div>
+
+
+      <div class="row-fluid">
+        <div class="span10 offset1">
+	  <!-- start content -->
+          
+          <h1>Pipes and Filters</h1>
+          
+          <div class="objectives">
+
+  <h4 id="objectives">Objectives</h4>
+  <ul>
+    <li>Redirect a command&#39;s output to a file.</li>
+    <li>Process a file instead of keyboard input using redirection.</li>
+    <li>Construct command pipelines with two or more stages.</li>
+    <li>Explain what usually happens if a program or pipeline isn&#39;t given any input to process.</li>
+    <li>Explain Unix&#39;s &quot;small pieces, loosely joined&quot; philosophy.</li>
+  </ul>
+
+</div>
+
+<p>Now that we know a few basic commands,
+we can finally look at the shell&#39;s most powerful feature:
+the ease with which it lets us combine existing programs in new ways.
+We&#39;ll start with a directory called <code>molecules</code>
+that contains six files describing some simple organic molecules.
+The <code>.pdb</code> extension indicates that these files are in Protein Data Bank format,
+a simple text format that specifies the type and position of each atom in the molecule.</p>
+
+<pre class="in"><code>$ ls molecules
+</code></pre>
+<pre class="out"><code>cubane.pdb    ethane.pdb    methane.pdb
+octane.pdb    pentane.pdb   propane.pdb
+</code></pre>
+
+<p>Let&#39;s go into that directory with <code>cd</code> and run the command <code>wc *.pdb</code>.
+<code>wc</code> is the &quot;word count&quot; command:
+it counts the number of lines, words, and characters in files.
+The <code>*</code> in <code>*.pdb</code> matches zero or more characters,
+so the shell turns <code>*.pdb</code> into a complete list of <code>.pdb</code> files:</p>
+
+<pre class="in"><code>$ cd molecules
+$ wc *.pdb
+</code></pre>
+<pre class="out"><code>  20  156 1158 cubane.pdb
+  12   84  622 ethane.pdb
+   9   57  422 methane.pdb
+  30  246 1828 octane.pdb
+  21  165 1226 pentane.pdb
+  15  111  825 propane.pdb
+ 107  819 6081 total
+</code></pre>
+
+<blockquote>
+  <h4 id="wildcards">Wildcards</h4>
+
+  <p><code>*</code> is a <a href="../../gloss.html#wildcard">wildcard</a>. It matches zero or more
+characters, so <code>*.pdb</code> matches <code>ethane.pdb</code>, <code>propane.pdb</code>, and so on.
+On the other hand, <code>p*.pdb</code> only matches <code>pentane.pdb</code> and
+<code>propane.pdb</code>, because the &#39;p&#39; at the front only matches itself.</p>
+
+  <p><code>?</code> is also a wildcard, but it only matches a single character. This
+means that <code>p?.pdb</code> matches <code>pi.pdb</code> or <code>p5.pdb</code>, but not <code>propane.pdb</code>.
+We can use any number of wildcards at a time: for example, <code>p*.p?*</code>
+matches anything that starts with a &#39;p&#39; and ends with &#39;.&#39;, &#39;p&#39;, and at
+least one more character (since the &#39;?&#39; has to match one character, and
+the final &#39;*&#39; can match any number of characters). Thus, <code>p*.p?*</code> would
+match <code>preferred.practice</code>, and even <code>p.pi</code> (since the first &#39;*&#39; can
+match no characters at all), but not <code>quality.practice</code> (doesn&#39;t start
+with &#39;p&#39;) or <code>preferred.p</code> (there isn&#39;t at least one character after the
+&#39;.p&#39;).</p>
+
+  <p>When the shell sees a wildcard, it expands the wildcard to create a
+list of matching filenames <em>before</em> running the command that was
+asked for.  This means that commands like <code>wc</code> and <code>ls</code> never see
+the wildcard characters, just what those wildcards matched. This is
+another example of orthogonal design.</p>
+</blockquote>
+
+<p>If we run <code>wc -l</code> instead of just <code>wc</code>,
+the output shows only the number of lines per file:</p>
+
+<pre class="in"><code>$ wc -l *.pdb
+</code></pre>
+<pre class="out"><code>  20  cubane.pdb
+  12  ethane.pdb
+   9  methane.pdb
+  30  octane.pdb
+  21  pentane.pdb
+  15  propane.pdb
+ 107  total
+</code></pre>
+
+<p>We can also use <code>-w</code> to get only the number of words,
+or <code>-c</code> to get only the number of characters.</p>
+
+<p>Which of these files is shortest?
+It&#39;s an easy question to answer when there are only six files,
+but what if there were 6000?
+Our first step toward a solution is to run the command:</p>
+
+<pre class="in"><code>$ wc -l *.pdb &gt; lengths
+</code></pre>
+
+<p>The <code>&gt;</code> tells the shell to <a href="../../gloss.html#redirect">redirect</a> the command&#39;s output
+to a file instead of printing it to the screen.
+The shell will create the file if it doesn&#39;t exist,
+or overwrite the contents of that file if it does.
+(This is why there is no screen output:
+everything that <code>wc</code> would have printed has gone into the file <code>lengths</code> instead.)
+<code>ls lengths</code> confirms that the file exists:</p>
+
+<pre class="in"><code>$ ls lengths
+</code></pre>
+<pre class="out"><code>lengths
+</code></pre>
+
+<p>We can now send the content of <code>lengths</code> to the screen using <code>cat lengths</code>.
+<code>cat</code> stands for &quot;concatenate&quot;:
+it prints the contents of files one after another.
+There&#39;s only one file in this case,
+so <code>cat</code> just shows us what it contains:</p>
+
+<pre class="in"><code>$ cat lengths
+</code></pre>
+<pre class="out"><code>  20  cubane.pdb
+  12  ethane.pdb
+   9  methane.pdb
+  30  octane.pdb
+  21  pentane.pdb
+  15  propane.pdb
+ 107  total
+</code></pre>
+
+<p>Now let&#39;s use the <code>sort</code> command to sort its contents.
+This does <em>not</em> change the file;
+instead, it sends the sorted result to the screen:</p>
+
+<pre class="in"><code>$ sort lengths
+</code></pre>
+<pre class="out"><code>  9  methane.pdb
+ 12  ethane.pdb
+ 15  propane.pdb
+ 20  cubane.pdb
+ 21  pentane.pdb
+ 30  octane.pdb
+107  total
+</code></pre>
+
+<p>We can put the sorted list of lines in another temporary file called <code>sorted-lengths</code>
+by putting <code>&gt; sorted-lengths</code> after the command,
+just as we used <code>&gt; lengths</code> to put the output of <code>wc</code> into <code>lengths</code>.
+Once we&#39;ve done that,
+we can run another command called <code>head</code> to get the first few lines in <code>sorted-lengths</code>:</p>
+
+<pre class="in"><code>$ sort lengths &gt; sorted-lengths
+$ head -1 sorted-lengths
+</code></pre>
+<pre class="out"><code>  9  methane.pdb
+</code></pre>
+
+<p>Using the parameter <code>-1</code> with <code>head</code> tells it that
+we only want the first line of the file;
+<code>-20</code> would get the first 20,
+and so on.
+Since <code>sorted-lengths</code> contains the lengths of our files ordered from least to greatest,
+the output of <code>head</code> must be the file with the fewest lines.</p>
+
+<p>If you think this is confusing,
+you&#39;re in good company:
+even once you understand what <code>wc</code>, <code>sort</code>, and <code>head</code> do,
+all those intermediate files make it hard to follow what&#39;s going on.
+We can make it easier to understand by running <code>sort</code> and <code>head</code> together:</p>
+
+<pre class="in"><code>$ sort lengths | head -1
+</code></pre>
+<pre class="out"><code>  9  methane.pdb
+</code></pre>
+
+<p>The vertical bar between the two commands is called a <a href="../../gloss.html#pipe">pipe</a>.
+It tells the shell that we want to use
+the output of the command on the left
+as the input to the command on the right.
+The computer might create a temporary file if it needs to,
+or copy data from one program to the other in memory,
+or something else entirely;
+we don&#39;t have to know or care.</p>
+
+<p>We can use another pipe to send the output of <code>wc</code> directly to <code>sort</code>,
+which then sends its output to <code>head</code>:</p>
+
+<pre class="in"><code>$ wc -l *.pdb | sort | head -1
+</code></pre>
+<pre class="out"><code>  9  methane.pdb
+</code></pre>
+
+<p>This is exactly like a mathematician nesting functions like <em>sin(&pi;x)<sup>2</sup></em>
+and saying &quot;the square of the sine of <em>x</em> times &pi;&quot;.
+In our case,
+the calculation is &quot;head of sort of word count of <code>*.pdb</code>&quot;.</p>
+
+<p>Here&#39;s what actually happens behind the scenes when we create a pipe.
+When a computer runs a program&mdash;any program&mdash;it creates a <a href="../../gloss.html#process">process</a>
+in memory to hold the program&#39;s software and its current state.
+Every process has an input channel called <a href="../../gloss.html#standard-input">standard input</a>.
+(By this point, you may be surprised that the name is so memorable, but don&#39;t worry:
+most Unix programmers call it &quot;stdin&quot;.
+Every process also has a default output channel called <a href="../../gloss.html#standard-output">standard output</a>
+(or &quot;stdout&quot;).</p>
+
+<p>The shell is actually just another program.
+Under normal circumstances,
+whatever we type on the keyboard is sent to the shell on its standard input,
+and whatever it produces on standard output is displayed on our screen.
+When we tell the shell to run a program,
+it creates a new process
+and temporarily sends whatever we type on our keyboard to that process&#39;s standard input,
+and whatever the process sends to standard output to the screen.</p>
+
+<p>Here&#39;s what happens when we run <code>wc -l *.pdb &gt; lengths</code>.
+The shell starts by telling the computer to create a new process to run the <code>wc</code> program.
+Since we&#39;ve provided some filenames as parameters,
+<code>wc</code> reads from them instead of from standard input.
+And since we&#39;ve used <code>&gt;</code> to redirect output to a file,
+the shell connects the process&#39;s standard output to that file.</p>
+
+<p>If we run <code>wc -l *.pdb | sort</code> instead,
+the shell creates two processes
+(one for each process in the pipe)
+so that <code>wc</code> and <code>sort</code> run simultaneously.
+The standard output of <code>wc</code> is fed directly to the standard input of <code>sort</code>;
+since there&#39;s no redirection with <code>&gt;</code>,
+<code>sort</code>&#39;s output goes to the screen.
+And if we run <code>wc -l *.pdb | sort | head -1</code>,
+we get three processes with data flowing from the files,
+through <code>wc</code> to <code>sort</code>,
+and from <code>sort</code> through <code>head</code> to the screen.</p>
+
+<p>This simple idea is why Unix has been so successful.
+Instead of creating enormous programs that try to do many different things,
+Unix programmers focus on creating lots of simple tools that each do one job well,
+and that work well with each other.
+This programming model is called <a href="../../gloss.html#pipe-and-filter">pipes and filters</a>.
+We&#39;ve already seen pipes;
+a <a href="../../gloss.html#filter">filter</a> is a program like <code>wc</code> or <code>sort</code>
+that transforms a stream of input into a stream of output.
+Almost all of the standard Unix tools can work this way:
+unless told to do otherwise,
+they read from standard input,
+do something with what they&#39;ve read,
+and write to standard output.</p>
+
+<p>The key is that any program that reads lines of text from standard input
+and writes lines of text to standard output
+can be combined with every other program that behaves this way as well.
+You can <em>and should</em> write your programs this way
+so that you and other people can put those programs into pipes to multiply their power.</p>
+
+<blockquote>
+  <h4 id="redirecting-input">Redirecting Input</h4>
+
+  <p>As well as using <code>&gt;</code> to redirect a program&#39;s output, we can use <code>&lt;</code> to
+redirect its input, i.e., to read from a file instead of from standard
+input. For example, instead of writing <code>wc ammonia.pdb</code>, we could write
+<code>wc &lt; ammonia.pdb</code>. In the first case, <code>wc</code> gets a command line
+parameter telling it what file to open. In the second, <code>wc</code> doesn&#39;t have
+any command line parameters, so it reads from standard input, but we
+have told the shell to send the contents of <code>ammonia.pdb</code> to <code>wc</code>&#39;s
+standard input.</p>
+</blockquote>
+
+<h4 id="nelles-pipeline-checking-files">Nelle&#39;s Pipeline: Checking Files</h4>
+
+<p>Nelle has run her samples through the assay machines
+and created 1520 files in the <code>north-pacific-gyre/2012-07-03</code> directory described earlier.
+As a quick sanity check, she types:</p>
+
+<pre class="in"><code>$ cd north-pacific-gyre/2012-07-03
+$ wc -l *.txt
+</code></pre>
+
+<p>The output is 1520 lines that look like this:</p>
+
+<pre class="out"><code>300 NENE01729A.txt
+300 NENE01729B.txt
+300 NENE01736A.txt
+300 NENE01751A.txt
+300 NENE01751B.txt
+300 NENE01812A.txt
+... ...
+</code></pre>
+
+<p>Now she types this:</p>
+
+<pre class="in"><code>$ wc -l *.txt | sort | head -5
+</code></pre>
+<pre class="out"><code> 240 NENE02018B.txt
+ 300 NENE01729A.txt
+ 300 NENE01729B.txt
+ 300 NENE01736A.txt
+ 300 NENE01751A.txt
+</code></pre>
+
+<p>Whoops: one of the files is 60 lines shorter than the others.
+When she goes back and checks it,
+she sees that she did that assay at 8:00 on a Monday morning&mdash;someone
+was probably in using the machine on the weekend,
+and she forgot to reset it.
+Before re-running that sample,
+she checks to see if any files have too much data:</p>
+
+<pre class="in"><code>$ wc -l *.txt | sort | tail -5
+</code></pre>
+<pre class="out"><code> 300 NENE02040A.txt
+ 300 NENE02040B.txt
+ 300 NENE02040Z.txt
+ 300 NENE02043A.txt
+ 300 NENE02043B.txt
+</code></pre>
+
+<p>Those numbers look good&mdash;but what&#39;s that &#39;Z&#39; doing there in the third-to-last line?
+All of her samples should be marked &#39;A&#39; or &#39;B&#39;;
+by convention,
+her lab uses &#39;Z&#39; to indicate samples with missing information.
+To find others like it, she does this:</p>
+
+<pre class="in"><code>$ ls *Z.txt
+</code></pre>
+<pre class="out"><code>NENE01971Z.txt    NENE02040Z.txt
+</code></pre>
+
+<p>Sure enough,
+when she checks the log on her laptop,
+there&#39;s no depth recorded for either of those samples.
+Since it&#39;s too late to get the information any other way,
+she must exclude those two files from her analysis.
+She could just delete them using <code>rm</code>,
+but there are actually some analyses she might do later where depth doesn&#39;t matter,
+so instead, she&#39;ll just be careful later on to select files using the wildcard expression <code>*[AB].txt</code>.
+As always,
+the &#39;*&#39; matches any number of characters;
+the expression <code>[AB]</code> matches either an &#39;A&#39; or a &#39;B&#39;,
+so this matches all the valid data files she has.</p>
+
+<div class="keypoints">
+
+  <h4 id="key-points">Key Points</h4>
+  <ul>
+    <li><code>command &gt; file</code> redirects a command&#39;s output to a file.</li>
+    <li><code>first | second</code> is a pipeline: the output of the first command is used as the input to the second.</li>
+    <li>The best way to use the shell is to use pipes to combine simple single-purpose programs (filters).</li>
+  </ul>
+
+</div>
+
+<div class="challenge">
+  <p>If we run <code>sort</code> on this file:</p>
+
+  <pre><code>10
+2
+19
+22
+6
+</code></pre>
+
+  <p>the output is:</p>
+
+  <pre><code>10
+19
+2
+22
+6
+</code></pre>
+
+  <p>If we run <code>sort -n</code> on the same input, we get this instead:</p>
+
+  <pre><code>2
+6
+10
+19
+22
+</code></pre>
+
+  <p>Explain why <code>-n</code> has this effect.</p>
+</div>
+
+<div class="challenge">
+  <p>What is the difference between:</p>
+
+  <pre><code>wc -l &lt; mydata.dat
+</code></pre>
+
+  <p>and:</p>
+
+  <pre><code>wc -l mydata.dat
+</code></pre>
+</div>
+
+<div class="challenge">
+  <p>The command <code>uniq</code> removes adjacent duplicated lines from its input.
+For example, if a file <code>salmon.txt</code> contains:</p>
+
+  <pre><code>coho
+coho
+steelhead
+coho
+steelhead
+steelhead
+</code></pre>
+
+  <p>then <code>uniq salmon.txt</code> produces:</p>
+
+  <pre><code>coho
+steelhead
+coho
+steelhead
+</code></pre>
+
+  <p>Why do you think <code>uniq</code> only removes <em>adjacent</em> duplicated lines?
+(Hint: think about very large data sets.) What other command could
+you combine with it in a pipe to remove all duplicated lines?</p>
+</div>
+
+<div class="challenge">
+  <p>A file called <code>animals.txt</code> contains the following data:</p>
+
+  <pre><code>2012-11-05,deer
+2012-11-05,rabbit
+2012-11-05,raccoon
+2012-11-06,rabbit
+2012-11-06,deer
+2012-11-06,fox
+2012-11-07,rabbit
+2012-11-07,bear
+</code></pre>
+
+  <p>What text passes through each of the pipes and the final redirect in the pipeline below?</p>
+
+  <pre><code>cat animals.txt | head -5 | tail -3 | sort -r &gt; final.txt
+</code></pre>
+</div>
+
+<div class="challenge">
+  <p>The command:</p>
+
+  <pre><code>$ cut -d , -f 2 animals.txt
+</code></pre>
+
+  <p>produces the following output:</p>
+
+  <pre><code>deer
+rabbit
+raccoon
+rabbit
+deer
+fox
+rabbit
+bear
+</code></pre>
+
+  <p>What other command(s) could be added to this in a pipeline to find
+out what animals the file contains (without any duplicates in their
+names)?</p>
+</div>
+
+	  <!-- end content -->
+	</div>
+      </div>
+
+      <div class="footer">
+  <a class="label swc-blue-bg" href="admin@software-carpentry.org">Email</a>
+  <a class="label swc-blue-bg" href="https://twitter.com/swcarpentry">Twitter</a>
+  <a class="label swc-blue-bg" href="http://software-carpentry.org/feed.xml">RSS</a>
+  <a class="label swc-blue-bg" href="https://github.com/swcarpentry">GitHub</a>
+  <a class="label swc-blue-bg" href="irc://moznet/sciencelab">IRC</a>
+  <a class="label swc-blue-bg" href="../../LICENSE.html">License</a>
+  <a class="bugreport label swc-blue-bg" href="mailto:admin@software-carpentry.org?subject=bug%20in%20novice/shell/03-pipefilter.md">Bug Report</a>
+</div>
+
+    </div>
+    <!-- Le javascript
+================================================== -->
+<!-- Placed at the end of the document so the pages load faster -->
+<script src="../../js/jquery-1.9.1.min.js"></script>
+<script src="../../js/bootstrap/bootstrap.min.js"></script>
+
+  </body>
+</html>

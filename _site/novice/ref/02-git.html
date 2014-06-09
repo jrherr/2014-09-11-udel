@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    
+      <title>Git Reference</title>
+    
+    <link rel="shortcut icon" type="image/x-icon" href="../../favicon.ico" />
+<link href="../../css/bootstrap/bootstrap.css" rel="stylesheet" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<link href="../../css/bootstrap/bootstrap-responsive.css" rel="stylesheet" />
+<link rel="stylesheet" type="text/css" href="../../css/swc.css" />
+<link rel="stylesheet" type="text/css" href="../../css/swc-bootstrap.css" />
+<link rel="alternate" type="application/rss+xml" title="The Software Carpentry Blog" href="/feed.xml"/>
+<meta charset="UTF-8" />
+<meta http-equiv="last-modified" content="" />
+<!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+<!--[if lt IE 9]>
+  <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+<![endif]-->
+
+    <link rel="stylesheet" type="text/css" href="../../css/lesson.css" />
+  </head>
+  <body>
+    <div class="container">
+      <div class="banner">
+  <a href="http://software-carpentry.org" title="Software Carpentry">
+    <img alt="Software Carpentry banner" src="../../img/software-carpentry-banner.png" />
+  </a>
+</div>
+
+
+      <div class="row-fluid">
+        <div class="span10 offset1">
+	  <!-- start content -->
+          
+          <h1>Git Reference</h1>
+          
+          <p>Set global configuration (only needs to be done once per machine):</p>
+
+<pre><code>git config --global user.name "Your Name"
+git config --global user.email "you@some.domain"
+git config --global color.ui "auto"
+git config --global core.editor "your_editor"
+</code></pre>
+
+<p>Initialize the current working directory as a repository:</p>
+
+<pre><code>git init
+</code></pre>
+
+<p>Display the status of the repository:</p>
+
+<pre><code>git status
+</code></pre>
+
+<p>Add specific files to the staging area:</p>
+
+<pre><code>git add filename_1 filename_2
+</code></pre>
+
+<p>Add all modified files in the current directory and its sub-directories to the staging area:</p>
+
+<pre><code>git add -A .
+</code></pre>
+
+<p>Commit changes in the staging area to the repository&#39;s history:
+(Without <code>-m</code> and a message, this command runs a text editor.)</p>
+
+<pre><code>git commit -m "Some message"
+</code></pre>
+
+<p>View the history of the repository:</p>
+
+<pre><code>git log
+</code></pre>
+
+<p>Display differences between the current state of the repository and the last saved state:</p>
+
+<pre><code>git diff
+</code></pre>
+
+<p>Display differences between the current state of a particular file and the last saved state:</p>
+
+<pre><code>git diff path/to/file
+</code></pre>
+
+<p>Display differences between the last saved state and what&#39;s in the staging area:</p>
+
+<pre><code>git diff --staged
+</code></pre>
+
+<p>Compare files to the previously saved state:</p>
+
+<pre><code>git diff HEAD~1 path/to/file
+</code></pre>
+
+<p>Compare files to an earlier saved state:</p>
+
+<pre><code>git diff HEAD~27 path/to/file
+</code></pre>
+
+<p>Compare files to a specific earlier state:</p>
+
+<pre><code>git diff 123456 path/to/file
+</code></pre>
+
+<p>Erase changes since the last save:</p>
+
+<pre><code>git reset --hard HEAD
+</code></pre>
+
+<p>Restore file to its state in a previous revision:</p>
+
+<pre><code>git checkout 123456 path/to/file
+</code></pre>
+
+<p>Add a remote to a repository:</p>
+
+<pre><code>git remote add nickname remote_specification
+</code></pre>
+
+<p>Display a repository&#39;s remotes:</p>
+
+<pre><code>git remote -v
+</code></pre>
+
+<p>Push changes from a local repository to a remote (assuming <code>master</code> already exists in the remote):</p>
+
+<pre><code>git push nickname master
+</code></pre>
+
+<p>Push changes from a local repository to a remote (if <code>master</code> doesn&#39;t yet exist in the remote):</p>
+
+<pre><code>git push -u nickname master
+</code></pre>
+
+<p>Pull changes from a remote repoisitory:</p>
+
+<pre><code>git pull nickname master
+</code></pre>
+
+<p>Note: <code>master</code> may be replaced with another branch name by more advanced users.</p>
+
+<p>Clone a remote repository:</p>
+
+<pre><code>git clone remote_specification
+</code></pre>
+
+<p>Markers used to show conflict in a file during a merge:</p>
+
+<pre><code>&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD
+lines from local file
+=======
+lines from remote file
+&gt;&gt;&gt;&gt;&gt;&gt;&gt; 1234567890abcdef1234567890abcdef12345678
+</code></pre>
+
+	  <!-- end content -->
+	</div>
+      </div>
+
+      <div class="footer">
+  <a class="label swc-blue-bg" href="admin@software-carpentry.org">Email</a>
+  <a class="label swc-blue-bg" href="https://twitter.com/swcarpentry">Twitter</a>
+  <a class="label swc-blue-bg" href="http://software-carpentry.org/feed.xml">RSS</a>
+  <a class="label swc-blue-bg" href="https://github.com/swcarpentry">GitHub</a>
+  <a class="label swc-blue-bg" href="irc://moznet/sciencelab">IRC</a>
+  <a class="label swc-blue-bg" href="../../LICENSE.html">License</a>
+  <a class="bugreport label swc-blue-bg" href="mailto:admin@software-carpentry.org?subject=bug%20in%20novice/ref/02-git.md">Bug Report</a>
+</div>
+
+    </div>
+    <!-- Le javascript
+================================================== -->
+<!-- Placed at the end of the document so the pages load faster -->
+<script src="../../js/jquery-1.9.1.min.js"></script>
+<script src="../../js/bootstrap/bootstrap.min.js"></script>
+
+  </body>
+</html>
