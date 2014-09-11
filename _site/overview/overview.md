@@ -1,7 +1,7 @@
 % Software Carpentry - Overview
-  GWU 
-% Software Carpentry Team
-% April 2014
+  University of Delaware
+% Software Carpentry Instructors - Josh Herr & Josh Adelman
+% September 11th - 12th 2014
 
 ## Copy This Lecture!
 <br></br>
@@ -16,11 +16,11 @@
 
 ## History
 
-* Founded by Greg Wilson in 1998, teaching scientists how to use supercomputers at LANL.
-* Open sourced materials 2004-present
-* Currently funded by the Sloan Foundation and the Mozilla Foundation
+* Founded by Greg Wilson in 1998, with the goal of teaching scientists how to use supercomputers at LANL.
+* Open sourced materials from 2004-present
+* SWC is currently minimally funded by the Sloan Foundation & Mozilla Foundation, but all teaching personel are volunteers
 
-## What We Teach
+## What We Will Teach (We're Flexible here...)
 
 * Unix Command Line Interface (Shell)
 * Shell automation 
@@ -31,12 +31,11 @@
 
 ## What We *Actually* Teach
 
-* A program is just another piece of lab equipment
-* Programming is a human activity
-* Little pieces loosely joined
-* Let the computer repeat it
-* Paranoia makes us productive
-* Better algorithms beat better hardware
+* A computer is just another piece of lab equipment
+* Do not be afraid to analyze your data
+* Could you be using your time more efficiently?
+* Let the computer repeat it - automation!
+* Automation leads to a reduction in human errors
 
 *How to THINK like a programmer*
 
@@ -57,11 +56,9 @@
 
 ## Who We Are
 
-* Aron Ahmadia (US Army/GWU)
-* Joshua Herr (Michigan State)
-* Billy Rowell (Howard Hughes Medical Institute)
-* Tarek El-Ghazawi (GWU)
-* Lorena Barba (GWU)
+* Josh Herr (Michigan State University)
+* Josh Adelman (University of Pittsburgh)
+
  
 ## Our Goals for You
 
@@ -71,14 +68,15 @@
 * Automating things with the **shell**
 * Practical Programming with **Python**
 * Scientific Computing with Python (numpy, matplotlib)
+* Using Git to keep track of changes to your files (collaboration and data provenance)
 
-# Some High-Level Advice
+# Some High-Level Advice (mainly from Greg Wilson)
 
-## Be fluent in multiple languages
+## Let's try to work in multiple languages
 <comment>
 You speak multiple languages when interacting with a computer.
-Choosing to use a new tool, library, or language can be similar to
-learning a new language:
+Choosing to use a new tool, library, or computer language can be similar to
+learning a new verbal language:
 </comment>
 
 
@@ -186,13 +184,21 @@ it in 6 months
 * If any piece of code is too complex to easily describe, consider refactoring
 it
 
-## Schedule 
+## Super Simplified Schedule 
 * Today 
-* **9:00-12:00** Shell / python 
+* **9:00-12:00** The Shell
 * **1:00-4:30**  Python 
 * Tomorrow
 * **9:00-12:00** Version control with Git 
-* **1:00-4:30**  Application Vignettes
+* **1:00-4:30**  More Advanced Python
+
+# Luke, Use the stickies...
+
+## Green post it note means I have completed the task or am not having trouble.
+
+## Red post it note means I need some help but am still working on the problem.
+
+## At the end of the day, write one thing you liked on the green and one thing you would like to see improved on the red - we'll respond!
 
 # Closing Thoughts
 
@@ -205,52 +211,5 @@ it
 </table>
 </div>
 
-# References and Further Reading
 
-# Research Literature
-
-## Programming Languages for Scientific Computing
-Matthew G. Knepley
-
-Preprint: http://arxiv.org/pdf/1209.1711.pdf
-
-*Gives an overview of modern programming languages and techniques such as code
-generation, templates, and mixed-language designs. This is a preprint,
-so expect some rough spots.*
-
-## Two Solitudes
-Greg Wilson
-
-Slides: http://www.slideshare.net/gvwilson/two-solitudes
-
-*Describes Greg's journey as a scientist and leader for the Software Carpentry
-project, provides some insight into the differences between industry and
-academics.*
-
-## Best Practices for Scientific Computing
-D. A. Aruliah, C. Titus Brown, Neil P. Chue Hong, Matt Davis, Richard T. Guy,
-Steven H. D. Haddock, Katy Huff, Ian Mitchell, Mark Plumbley, Ben Waugh,
-Ethan P. White, Greg Wilson, Paul Wilson
-
-Preprint: http://arxiv.org/abs/1210.0530
-
-*Good summary paper of many fundamental practices for working with and
-developing scientific software. This is a preprint, so expect some rough spots.*
-
-# Web References
-
-## What Every Computer Scientist Should Know About Floating-Point Arithmetic
-David Golberg
-
-Web article: http://docs.oracle.com/cd/E19957-01/806-3568/ncg_goldberg.html
-
-*Introduction to the IEEE floating-point standard, its implications, and many of
-the common pitfalls when using floating-point numbers in scientific computing*
-
-## Science Code Manifesto
-
-http://sciencecodemanifesto.org
-
-*Publicly signed commitment to clear licensing and curation of software
-associated with research publications.*
 
